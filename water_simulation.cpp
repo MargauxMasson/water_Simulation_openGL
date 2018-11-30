@@ -360,6 +360,7 @@ int main(int argc, char *argv[])
 
 void Animate()
 {
+    InitNoise ();
     // put animation stuff in here -- change some global variables
     // for Display( ) to find:
     // int ms = glutGet(GLUT_ELAPSED_TIME);
@@ -507,7 +508,7 @@ void Animate()
 
 void Display()
 {
-    InitNoise ();
+    // InitNoise ();
     unsigned char total_texture[4 * 256 * 256];
     unsigned char alpha_texture[256 * 256];
     unsigned char caustic_texture[3 * 256 * 256];
@@ -622,32 +623,13 @@ void Display()
         glDisable(GL_FOG);
     }
 
-    // if we are using a texture on the sphere
-    // if (isTexture)
-    // {
-    //     glEnable(GL_TEXTURE_2D);
-    //     glBindTexture(GL_TEXTURE_2D, tex);
-    // }
-    // else
-    // {
-    //     // the blob-ish object
-    //     glDisable(GL_TEXTURE_2D);
-    //     glColor3f(0.5, 0.5, 0.5);
-    // }
-    // if (Distort)
-    // {
-    //     glRotatef(360*Time, 0., 1., 0.);
-    // }
-    // MjbSphere(2, 50, 50);
-
-
 
     glTranslatef (0, 0.2, 0);
 
-    //   if (wire_frame != 0)
-    //     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    if (wire_frame != 0)
+        glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
-    /* The water */
+    /* Water */
     glEnable (GL_TEXTURE_2D);
     glColor3f (1, 1, 1);
     glEnableClientState (GL_NORMAL_ARRAY);
@@ -658,7 +640,9 @@ void Display()
         glDrawArrays (GL_TRIANGLE_STRIP, i * length, length);
 
     glEnd();
-
+    glFlush ();
+    // glutSwapBuffers ();
+    glutPostRedisplay ();
     // possibly draw the axes:
     // if (AxesOn != 0)
     // {
@@ -1046,6 +1030,21 @@ void Keyboard(unsigned char c, int x, int y)
     case 'F':
         Frozen  = !Frozen;
         break;
+    case 'w':
+    case 'W':
+      wire_frame = 0;
+      break;
+    case 'l':
+    case 'L':
+      wire_frame = 1;
+      break;
+    case 'n':
+    case 'N':
+      if (0 == normals)
+	normals = 1;
+      else
+	normals = 0;
+      break;
     case 'p':
     case 'P':
         WhichProjection = PERSP;
