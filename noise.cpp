@@ -18,7 +18,6 @@ static const char	gradient[32][4] =
 
 void InitNoise (void)
 {
-  printf("hellooooooooooo");
   unsigned int i = 0;
   while (i < 256)
     permut[i++] = rand () & MOD;

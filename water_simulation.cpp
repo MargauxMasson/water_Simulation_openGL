@@ -864,7 +864,6 @@ void Display()
     glEnableClientState (GL_VERTEX_ARRAY);
     glNormalPointer (GL_FLOAT, 0, normal);
     glVertexPointer (3, GL_FLOAT, 0, surface);
-    printf("SURFAAAAAAAAAAACE: %d", surface[2]);
     for (int i = 0; i < 64; i++)
         glDrawArrays (GL_TRIANGLE_STRIP, i * length, length);
 
