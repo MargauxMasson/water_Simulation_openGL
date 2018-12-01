@@ -17,7 +17,6 @@
 #include <GL/glu.h>
 #include "glut.h"
 
-// #include "bmptotexture.cpp"
 #include "noise.cpp"
 float Time;
 #include "noise.h"
@@ -409,9 +408,6 @@ void Display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glLoadIdentity();
-    // glTranslatef(0, 0, -translate_z);
-    // glRotatef(rotate_y, 1, 0, 0);
-    // glRotatef(rotate_x, 0, 1, 0);
 
     /* Vertices */
     for (j = 0; j < RESOLUTION; j++)
@@ -550,6 +546,8 @@ void Display()
         total_texture[4 * i + 2] = Texture[3 * i + 2];
         total_texture[4 * i + 3] = alpha_texture[i];
     }
+
+    glBindTexture(GL_TEXTURE_2D, texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, 256, 256, GL_RGBA,
                       GL_UNSIGNED_BYTE, total_texture);
@@ -561,32 +559,6 @@ void Display()
     glEnable(GL_TEXTURE_GEN_T);
     glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
     glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-
-    /* Draw normals */
-    // if (normals != 0)
-    // {
-    //     glDisable(GL_TEXTURE_2D);
-    //     glColor3f(1, 0, 0);
-    //     glBegin(GL_LINES);
-    //     for (j = 0; j < RESOLUTION; j++)
-    //         for (i = 0; i <= RESOLUTION; i++)
-    //         {
-    //             indice = 6 * (i + j * (RESOLUTION + 1));
-    //             glVertex3fv(&(surface[indice]));
-    //             glVertex3f(surface[indice] + normal[indice] / 50,
-    //                        surface[indice + 1] + normal[indice + 1] / 50,
-    //                        surface[indice + 2] + normal[indice + 2] / 50);
-    //         }
-
-    //     glEnd();
-    // }
-
-    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // glLoadIdentity();
-    // glTranslatef(0, 0, -translate_z);
-    // glRotatef(rotate_y, 1, 0, 0);
-    // glRotatef(rotate_x, 0, 1, 0);
 
     if (DebugOn != 0)
     {
@@ -637,7 +609,7 @@ void Display()
     glLoadIdentity();
 
     // set the eye position, look-at position, and up-vector:
-    gluLookAt(2, 2, 2, 0., 0., 0., 0., 1., 0.);
+    gluLookAt(1, 1, 0, 0., 0., 0., 0., 1., 0.);
 
     // rotate the scene:
 
@@ -669,8 +641,16 @@ void Display()
     glTranslatef(0, 0.2, 0);
 
     if (wire_frame != 0)
+    {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glDisable(GL_TEXTURE_2D); // does not work
+        glDisable(GL_TEXTURE_2D);
+    }
+    else
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_NONE);
+        glEnable(GL_TEXTURE_2D);
+    }
+
 
     /* Draw normals */
     if (normals != 0)
@@ -692,7 +672,15 @@ void Display()
     }
 
     /* Water */
-    glEnable(GL_TEXTURE_2D);
+    if (isTexture)
+    {
+        glEnable(GL_TEXTURE_2D);
+    }
+    else
+    {
+        // the blob-ish object
+        glDisable(GL_TEXTURE_2D);
+    }
     glColor3f(1, 1, 1);
     glEnableClientState(GL_NORMAL_ARRAY);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -819,6 +807,9 @@ void DoTexture(int id)
         Texture = Texture3;
         isTexture = true;
         break;
+    case 3:
+        isTexture = false;
+        break;
     }
 }
 
@@ -937,14 +928,11 @@ void InitMenus()
     glutAddMenuEntry("Orthographic", ORTHO);
     glutAddMenuEntry("Perspective", PERSP);
 
-    // int distortmenu = glutCreateMenu(DoDistort);
-    // glutAddMenuEntry("Off", 0);
-    // glutAddMenuEntry("On", 1);
-
     int texturemenu = glutCreateMenu(DoTexture);
     glutAddMenuEntry("water", 0);
     glutAddMenuEntry("deepWater", 1);
     glutAddMenuEntry("darkWater", 2);
+    glutAddMenuEntry("No Texture", 3);
 
     int mainmenu = glutCreateMenu(DoMainMenu);
     glutAddSubMenu("Texture", texturemenu);
