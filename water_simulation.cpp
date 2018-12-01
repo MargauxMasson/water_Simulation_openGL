@@ -21,7 +21,7 @@
 #include "noise.cpp"
 float Time;
 #include "noise.h"
-#define RESOLUTION 100
+#define RESOLUTION 64
 #define MOD 0xff
 
 // title of these windows:
@@ -409,9 +409,9 @@ void Display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glLoadIdentity();
-    glTranslatef(0, 0, -translate_z);
-    glRotatef(rotate_y, 1, 0, 0);
-    glRotatef(rotate_x, 0, 1, 0);
+    // glTranslatef(0, 0, -translate_z);
+    // glRotatef(rotate_y, 1, 0, 0);
+    // glRotatef(rotate_x, 0, 1, 0);
 
     /* Vertices */
     for (j = 0; j < RESOLUTION; j++)
@@ -671,6 +671,25 @@ void Display()
     if (wire_frame != 0)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDisable(GL_TEXTURE_2D); // does not work
+
+    /* Draw normals */
+    if (normals != 0)
+    {
+        glDisable(GL_TEXTURE_2D);
+        glColor3f(1, 0, 0);
+        glBegin(GL_LINES);
+        for (j = 0; j < RESOLUTION; j++)
+            for (i = 0; i <= RESOLUTION; i++)
+            {
+                indice = 6 * (i + j * (RESOLUTION + 1));
+                glVertex3fv(&(surface[indice]));
+                glVertex3f(surface[indice] + normal[indice] / 50,
+                           surface[indice + 1] + normal[indice + 1] / 50,
+                           surface[indice + 2] + normal[indice + 2] / 50);
+            }
+
+        glEnd();
+    }
 
     /* Water */
     glEnable(GL_TEXTURE_2D);
