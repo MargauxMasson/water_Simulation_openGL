@@ -16,14 +16,10 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "glut.h"
-// #include <OpenGL/gl.h>
-// #include <OpenGL/glu.h>
-// #include <GLUT/glut.h>
 
-#include "bmptotexture.cpp"
+// #include "bmptotexture.cpp"
 #include "noise.cpp"
 float Time;
-// #include "sphere.cpp"
 #include "noise.h"
 #define		RESOLUTION 100
 #define		MOD	0xff
@@ -916,7 +912,7 @@ void Display()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glColor3f(1., 1., 1.);
-    DoRasterString(5., 5., 0., "Margaux Masson - Texturing");
+    DoRasterString(5., 5., 0., "Margaux Masson - Final Project - Water Simulation");
 
     // swap the double-buffered framebuffers:
 
