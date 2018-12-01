@@ -19,7 +19,7 @@
 
 #include "noise.cpp"
 float Time;
-#define RESOLUTION 64
+#define RESOLUTION 100
 #define MOD 0xff
 
 // title of these windows:
@@ -540,7 +540,7 @@ void Display()
                 }
             }
     }
-    
+
     for (int i = 0; i < 256 * 256; i++)
     {
         total_texture[4 * i] = Texture[3 * i];
@@ -679,7 +679,6 @@ void Display()
     }
     else
     {
-        // the blob-ish object
         glDisable(GL_TEXTURE_2D);
     }
     glColor3f(1, 1, 1);
@@ -687,9 +686,8 @@ void Display()
     glEnableClientState(GL_VERTEX_ARRAY);
     glNormalPointer(GL_FLOAT, 0, normal);
     glVertexPointer(3, GL_FLOAT, 0, surface);
-    for (int i = 0; i < 64; i++)
+    for (int i = 0; i < RESOLUTION; i++)
         glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
-
     glEnd();
     glFlush();
     glutPostRedisplay();
@@ -930,9 +928,9 @@ void InitMenus()
     glutAddMenuEntry("Perspective", PERSP);
 
     int texturemenu = glutCreateMenu(DoTexture);
-    glutAddMenuEntry("water", 0);
-    glutAddMenuEntry("deepWater", 1);
-    glutAddMenuEntry("darkWater", 2);
+    glutAddMenuEntry("BlueWater", 0);
+    glutAddMenuEntry("DeepWater", 1);
+    glutAddMenuEntry("DarkWater", 2);
     glutAddMenuEntry("No Texture", 3);
 
     int mainmenu = glutCreateMenu(DoMainMenu);
