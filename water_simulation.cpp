@@ -19,7 +19,6 @@
 
 #include "noise.cpp"
 float Time;
-#include "noise.h"
 #define RESOLUTION 64
 #define MOD 0xff
 
@@ -409,114 +408,71 @@ void Display()
 
     glLoadIdentity();
 
-    /* Vertices */
-    for (j = 0; j < RESOLUTION; j++)
+    if (!Frozen)
     {
-        y = (j + 1) * delta - 1;
-        for (i = 0; i <= RESOLUTION; i++)
+        /* Vertices */
+        for (j = 0; j < RESOLUTION; j++)
         {
-            indice = 6 * (i + j * (RESOLUTION + 1));
+            y = (j + 1) * delta - 1;
+            for (i = 0; i <= RESOLUTION; i++)
+            {
+                indice = 6 * (i + j * (RESOLUTION + 1));
 
-            x = i * delta - 1;
-            surface[indice + 3] = x;
-            surface[indice + 4] = z(x, y, t);
-            surface[indice + 5] = y;
-            if (j != 0)
-            {
-                /* Values were computed during the previous loop */
-                preindice = 6 * (i + (j - 1) * (RESOLUTION + 1));
-                surface[indice] = surface[preindice + 3];
-                surface[indice + 1] = surface[preindice + 4];
-                surface[indice + 2] = surface[preindice + 5];
-            }
-            else
-            {
-                surface[indice] = x;
-                surface[indice + 1] = z(x, -1, t);
-                surface[indice + 2] = -1;
+                x = i * delta - 1;
+                surface[indice + 3] = x;
+                surface[indice + 4] = z(x, y, t);
+                surface[indice + 5] = y;
+                if (j != 0)
+                {
+                    /* Values were computed during the previous loop */
+                    preindice = 6 * (i + (j - 1) * (RESOLUTION + 1));
+                    surface[indice] = surface[preindice + 3];
+                    surface[indice + 1] = surface[preindice + 4];
+                    surface[indice + 2] = surface[preindice + 5];
+                }
+                else
+                {
+                    surface[indice] = x;
+                    surface[indice + 1] = z(x, -1, t);
+                    surface[indice + 2] = -1;
+                }
             }
         }
-    }
 
-    /* Normals */
-    for (j = 0; j < RESOLUTION; j++)
-        for (i = 0; i <= RESOLUTION; i++)
-        {
-            indice = 6 * (i + j * (RESOLUTION + 1));
-
-            v1x = surface[indice + 3];
-            v1y = surface[indice + 4];
-            v1z = surface[indice + 5];
-
-            v2x = v1x;
-            v2y = surface[indice + 1];
-            v2z = surface[indice + 2];
-
-            if (i < RESOLUTION)
+        /* Normals */
+        for (j = 0; j < RESOLUTION; j++)
+            for (i = 0; i <= RESOLUTION; i++)
             {
-                v3x = surface[indice + 9];
-                v3y = surface[indice + 10];
-                v3z = v1z;
-            }
-            else
-            {
-                v3x = xn;
-                v3y = z(xn, v1z, t);
-                v3z = v1z;
-            }
+                indice = 6 * (i + j * (RESOLUTION + 1));
 
-            vax = v2x - v1x;
-            vay = v2y - v1y;
-            vaz = v2z - v1z;
+                v1x = surface[indice + 3];
+                v1y = surface[indice + 4];
+                v1z = surface[indice + 5];
 
-            vbx = v3x - v1x;
-            vby = v3y - v1y;
-            vbz = v3z - v1z;
+                v2x = v1x;
+                v2y = surface[indice + 1];
+                v2z = surface[indice + 2];
 
-            nx = (vby * vaz) - (vbz * vay);
-            ny = (vbz * vax) - (vbx * vaz);
-            nz = (vbx * vay) - (vby * vax);
+                if (i < RESOLUTION)
+                {
+                    v3x = surface[indice + 9];
+                    v3y = surface[indice + 10];
+                    v3z = v1z;
+                }
+                else
+                {
+                    v3x = xn;
+                    v3y = z(xn, v1z, t);
+                    v3z = v1z;
+                }
 
-            l = sqrtf(nx * nx + ny * ny + nz * nz);
-            if (l != 0)
-            {
-                l = 1 / l;
-                normal[indice + 3] = nx * l;
-                normal[indice + 4] = ny * l;
-                normal[indice + 5] = nz * l;
-            }
-            else
-            {
-                normal[indice + 3] = 0;
-                normal[indice + 4] = 1;
-                normal[indice + 5] = 0;
-            }
+                vax = v2x - v1x;
+                vay = v2y - v1y;
+                vaz = v2z - v1z;
 
-            if (j != 0)
-            {
-                /* Values were computed during the previous loop */
-                preindice = 6 * (i + (j - 1) * (RESOLUTION + 1));
-                normal[indice] = normal[preindice + 3];
-                normal[indice + 1] = normal[preindice + 4];
-                normal[indice + 2] = normal[preindice + 5];
-            }
-            else
-            {
-                /* 	    v1x = v1x; */
-                v1y = z(v1x, (j - 1) * delta - 1, t);
-                v1z = (j - 1) * delta - 1;
-
-                /* 	    v3x = v3x; */
-                v3y = z(v3x, v2z, t);
-                v3z = v2z;
-
-                vax = v1x - v2x;
-                vay = v1y - v2y;
-                vaz = v1z - v2z;
-
-                vbx = v3x - v2x;
-                vby = v3y - v2y;
-                vbz = v3z - v2z;
+                vbx = v3x - v1x;
+                vby = v3y - v1y;
+                vbz = v3z - v1z;
 
                 nx = (vby * vaz) - (vbz * vay);
                 ny = (vbz * vax) - (vbx * vaz);
@@ -526,19 +482,65 @@ void Display()
                 if (l != 0)
                 {
                     l = 1 / l;
-                    normal[indice] = nx * l;
-                    normal[indice + 1] = ny * l;
-                    normal[indice + 2] = nz * l;
+                    normal[indice + 3] = nx * l;
+                    normal[indice + 4] = ny * l;
+                    normal[indice + 5] = nz * l;
                 }
                 else
                 {
-                    normal[indice] = 0;
-                    normal[indice + 1] = 1;
-                    normal[indice + 2] = 0;
+                    normal[indice + 3] = 0;
+                    normal[indice + 4] = 1;
+                    normal[indice + 5] = 0;
+                }
+
+                if (j != 0)
+                {
+                    /* Values were computed during the previous loop */
+                    preindice = 6 * (i + (j - 1) * (RESOLUTION + 1));
+                    normal[indice] = normal[preindice + 3];
+                    normal[indice + 1] = normal[preindice + 4];
+                    normal[indice + 2] = normal[preindice + 5];
+                }
+                else
+                {
+                    /* 	    v1x = v1x; */
+                    v1y = z(v1x, (j - 1) * delta - 1, t);
+                    v1z = (j - 1) * delta - 1;
+
+                    /* 	    v3x = v3x; */
+                    v3y = z(v3x, v2z, t);
+                    v3z = v2z;
+
+                    vax = v1x - v2x;
+                    vay = v1y - v2y;
+                    vaz = v1z - v2z;
+
+                    vbx = v3x - v2x;
+                    vby = v3y - v2y;
+                    vbz = v3z - v2z;
+
+                    nx = (vby * vaz) - (vbz * vay);
+                    ny = (vbz * vax) - (vbx * vaz);
+                    nz = (vbx * vay) - (vby * vax);
+
+                    l = sqrtf(nx * nx + ny * ny + nz * nz);
+                    if (l != 0)
+                    {
+                        l = 1 / l;
+                        normal[indice] = nx * l;
+                        normal[indice + 1] = ny * l;
+                        normal[indice + 2] = nz * l;
+                    }
+                    else
+                    {
+                        normal[indice] = 0;
+                        normal[indice + 1] = 1;
+                        normal[indice + 2] = 0;
+                    }
                 }
             }
-        }
-
+    }
+    
     for (int i = 0; i < 256 * 256; i++)
     {
         total_texture[4 * i] = Texture[3 * i];
@@ -650,7 +652,6 @@ void Display()
         glPolygonMode(GL_FRONT_AND_BACK, GL_NONE);
         glEnable(GL_TEXTURE_2D);
     }
-
 
     /* Draw normals */
     if (normals != 0)
