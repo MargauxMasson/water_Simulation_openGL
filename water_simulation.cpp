@@ -157,7 +157,7 @@ int height = 512;
 bool isTexture = true;
 int idTexture = 0;
 bool Frozen = false;
-
+float grass_height = 1;
 unsigned char total_texture[4 * 256 * 256];
 unsigned char alpha_texture[256 * 256];
 unsigned char water_texture[3 * 256 * 256];
@@ -238,7 +238,7 @@ static float field_creation(const float x, const float y)
     const float y2 = y + 1;
     const float xx = x2 * x2;
     const float yy = y2 * y2;
-    return (Noise(10 * x, 10 * y, 20, 0) / 8);
+    return (Noise(10 * x, 10 * y, 20, 0) / 8) * grass_height;
 }
 
 /*
@@ -733,7 +733,7 @@ void Display()
     // GLuint tex2;
     // // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     // glGenTextures(1, &tex2);
-    
+
     // glActiveTexture(GL_TEXTURE1);
     // glBindTexture(GL_TEXTURE_2D, tex2); // make tex texture current
 
@@ -746,13 +746,12 @@ void Display()
     // glEnable(GL_TEXTURE_2D);
     // glTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, grass_texture);
 
-
     // // glBindTexture(GL_TEXTURE_2D, tex2);
     // gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, 256, 256, GL_RGB,
     //                   GL_NONE, water_texture);
     glTranslatef(2, 0, 0);
     glColor3f(0, 0.8, 0);
-    
+
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, surface_field);
     for (int i = 0; i < resolution; i++)
@@ -1139,9 +1138,7 @@ void InitGraphics()
     load_texture("reflection3.jpg", water_texture3, GL_RGB, 256);
     // load_texture("grass.jpg", grass_texture, GL_RGB, 256);
 
-    
     unsigned char *grass_texture = BmpToTexture("mars.bmp", &width, &height);
-
 
     // init glew (a window must be open to do this):
 
@@ -1221,11 +1218,15 @@ void Keyboard(unsigned char c, int x, int y)
             idTexture = 0;
         }
         break;
-        // case 'd':
-        // case 'D':
-        //     Distort = !Distort;
-        //     break;
-
+    case '+':
+        grass_height = grass_height + 1;
+        break;
+    case '-':
+        if (grass_height > 0)
+        {
+            grass_height = grass_height - 1;
+        }
+        break;
     case 'q':
     case 'Q':
     case ESCAPE:
