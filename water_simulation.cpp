@@ -163,7 +163,7 @@ unsigned char alpha_texture[256 * 256];
 unsigned char water_texture[3 * 256 * 256];
 unsigned char water_texture2[3 * 256 * 256];
 unsigned char water_texture3[3 * 256 * 256];
-unsigned char *grass_texture;
+unsigned char grass_texture[3 * 256 * 256];
 
 unsigned char *Texture1 = water_texture;
 unsigned char *Texture2 = water_texture2;
@@ -175,11 +175,6 @@ static GLuint tex;
 
 static int wire_frame = 0;
 static int normals = 0;
-static int xold = 0;
-static int yold = 0;
-static float rotate_x = 30;
-static float rotate_y = 15;
-static float translate_z = 4;
 
 static float surface[6 * resolution * (resolution + 1)];
 static float surface_field[6 * resolution * (resolution + 1)];
@@ -1136,9 +1131,9 @@ void InitGraphics()
     load_texture("reflection.jpg", water_texture, GL_RGB, 256);
     load_texture("reflection2.jpg", water_texture2, GL_RGB, 256);
     load_texture("reflection3.jpg", water_texture3, GL_RGB, 256);
-    // load_texture("grass.jpg", grass_texture, GL_RGB, 256);
+    load_texture("grass.jpg", grass_texture, GL_RGB, 256);
 
-    unsigned char *grass_texture = BmpToTexture("mars.bmp", &width, &height);
+    // unsigned char *grass_texture = BmpToTexture("mars.bmp", &width, &height);
 
     // init glew (a window must be open to do this):
 
