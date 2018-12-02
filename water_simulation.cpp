@@ -284,7 +284,6 @@ void DoColorMenu(int);
 void DoDepthBufferMenu(int);
 void DoDepthFightingMenu(int);
 void DoDepthMenu(int);
-// void DoDistort(int);
 void DoTexture(int);
 void DoDebugMenu(int);
 void DoMainMenu(int);
