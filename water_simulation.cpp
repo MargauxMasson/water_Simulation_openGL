@@ -230,6 +230,15 @@ static float waves_creation(const float x, const float y, const float t)
             200);
 }
 
+static float field_creation(const float x, const float y)
+{
+    const float x2 = x - 3;
+    const float y2 = y + 1;
+    const float xx = x2 * x2;
+    const float yy = y2 * y2;
+    return (Noise(10 * x, 10 * y, 20, 0) / 8);
+}
+
 /*
 ** Function to load a Jpeg file.
 */
@@ -446,7 +455,7 @@ void Display()
 
                 x = i * delta - 1;
                 surface_field[indice + 3] = x;
-                surface_field[indice + 4] = Noise(10 * x, 10 * y, 20, 0) / 8;
+                surface_field[indice + 4] = field_creation(x,y);
                 surface_field[indice + 5] = y;
                 if (j != 0)
                 {
@@ -459,7 +468,7 @@ void Display()
                 else
                 {
                     surface_field[indice] = x;
-                    surface_field[indice + 1] = Noise(10 * x, 10 * y, 20, 0) / 8;
+                    surface_field[indice + 1] = field_creation(x,y);
                     surface_field[indice + 2] = -1;
                 }
             }
