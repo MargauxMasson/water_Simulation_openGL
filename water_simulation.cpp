@@ -158,20 +158,18 @@ bool Frozen = false;
 
 unsigned char total_texture[4 * 256 * 256];
 unsigned char alpha_texture[256 * 256];
-unsigned char caustic_texture[3 * 256 * 256];
-unsigned char caustic_texture2[3 * 256 * 256];
-unsigned char caustic_texture3[3 * 256 * 256];
+unsigned char water_texture[3 * 256 * 256];
+unsigned char water_texture2[3 * 256 * 256];
+unsigned char water_texture3[3 * 256 * 256];
 
-unsigned char *Texture1 = caustic_texture;
-unsigned char *Texture2 = caustic_texture2;
-unsigned char *Texture3 = caustic_texture3;
-unsigned char *Texture = Texture3;
+unsigned char *Texture1 = water_texture;
+unsigned char *Texture2 = water_texture2;
+unsigned char *Texture3 = water_texture3;
+unsigned char *Texture = Texture1;
 
 /////////// WATER ////////////
-static GLuint texture;
+static GLuint tex;
 
-static int left_click = GLUT_UP;
-static int right_click = GLUT_UP;
 static int wire_frame = 0;
 static int normals = 0;
 static int xold = 0;
@@ -549,8 +547,8 @@ void Display()
         total_texture[4 * i + 3] = alpha_texture[i];
     }
 
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
     gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, 256, 256, GL_RGBA,
                       GL_UNSIGNED_BYTE, total_texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1019,11 +1017,11 @@ void InitGraphics()
     InitNoise();
 
     /* Texture loading  */
-    glGenTextures(1, &texture);
+    glGenTextures(1, &tex);
     load_texture("alpha.jpg", alpha_texture, GL_ALPHA, 256);
-    load_texture("reflection.jpg", caustic_texture, GL_RGB, 256);
-    load_texture("reflection2.jpg", caustic_texture2, GL_RGB, 256);
-    load_texture("reflection3.jpg", caustic_texture3, GL_RGB, 256);
+    load_texture("reflection.jpg", water_texture, GL_RGB, 256);
+    load_texture("reflection2.jpg", water_texture2, GL_RGB, 256);
+    load_texture("reflection3.jpg", water_texture3, GL_RGB, 256);
 
     // init glew (a window must be open to do this):
 
