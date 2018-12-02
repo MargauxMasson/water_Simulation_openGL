@@ -16,11 +16,12 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "glut.h"
+#include "bmptotexture.cpp"
 
 #include "noise.cpp"
 float Time;
-#define RESOLUTION 100
-// int RESOLUTION = 100;
+#define resolution 100
+// int resolution = 100;
 #define MOD 0xff
 
 // title of these windows:
@@ -162,6 +163,7 @@ unsigned char alpha_texture[256 * 256];
 unsigned char water_texture[3 * 256 * 256];
 unsigned char water_texture2[3 * 256 * 256];
 unsigned char water_texture3[3 * 256 * 256];
+unsigned char *grass_texture;
 
 unsigned char *Texture1 = water_texture;
 unsigned char *Texture2 = water_texture2;
@@ -179,14 +181,14 @@ static float rotate_x = 30;
 static float rotate_y = 15;
 static float translate_z = 4;
 
-static float surface[6 * RESOLUTION * (RESOLUTION + 1)];
-static float surface_field[6 * RESOLUTION * (RESOLUTION + 1)];
-static float normal[6 * RESOLUTION * (RESOLUTION + 1)];
+static float surface[6 * resolution * (resolution + 1)];
+static float surface_field[6 * resolution * (resolution + 1)];
+static float normal[6 * resolution * (resolution + 1)];
 
 const float t = glutGet(GLUT_ELAPSED_TIME) / 1000.;
-const float delta = 2. / RESOLUTION;
-const unsigned int length = 2 * (RESOLUTION + 1);
-const float xn = (RESOLUTION + 1) * delta + 1;
+const float delta = 2. / resolution;
+const unsigned int length = 2 * (resolution + 1);
+const float xn = (resolution + 1) * delta + 1;
 unsigned int i;
 unsigned int j;
 float x;
@@ -375,9 +377,9 @@ void Animate()
 void Display()
 {
     const float t = glutGet(GLUT_ELAPSED_TIME) / 800.;
-    const float delta = 2. / RESOLUTION;
-    const unsigned int length = 2 * (RESOLUTION + 1);
-    const float xn = (RESOLUTION + 1) * delta + 1;
+    const float delta = 2. / resolution;
+    const unsigned int length = 2 * (resolution + 1);
+    const float xn = (resolution + 1) * delta + 1;
     unsigned int i;
     unsigned int j;
     float x;
@@ -418,12 +420,12 @@ void Display()
     if (!Frozen)
     {
         /* Vertices */
-        for (j = 0; j < RESOLUTION; j++)
+        for (j = 0; j < resolution; j++)
         {
             y = (j + 1) * delta - 1;
-            for (i = 0; i <= RESOLUTION; i++)
+            for (i = 0; i <= resolution; i++)
             {
-                indice = 6 * (i + j * (RESOLUTION + 1));
+                indice = 6 * (i + j * (resolution + 1));
 
                 x = i * delta - 1;
                 surface[indice + 3] = x;
@@ -432,7 +434,7 @@ void Display()
                 if (j != 0)
                 {
                     /* Values were computed during the previous loop */
-                    preindice = 6 * (i + (j - 1) * (RESOLUTION + 1));
+                    preindice = 6 * (i + (j - 1) * (resolution + 1));
                     surface[indice] = surface[preindice + 3];
                     surface[indice + 1] = surface[preindice + 4];
                     surface[indice + 2] = surface[preindice + 5];
@@ -446,21 +448,21 @@ void Display()
             }
         }
 
-        for (j = 0; j < RESOLUTION; j++)
+        for (j = 0; j < resolution; j++)
         {
             y = (j + 1) * delta - 1;
-            for (i = 0; i <= RESOLUTION; i++)
+            for (i = 0; i <= resolution; i++)
             {
-                indice = 6 * (i + j * (RESOLUTION + 1));
+                indice = 6 * (i + j * (resolution + 1));
 
                 x = i * delta - 1;
                 surface_field[indice + 3] = x;
-                surface_field[indice + 4] = field_creation(x,y);
+                surface_field[indice + 4] = field_creation(x, y);
                 surface_field[indice + 5] = y;
                 if (j != 0)
                 {
                     /* Values were computed during the previous loop */
-                    preindice = 6 * (i + (j - 1) * (RESOLUTION + 1));
+                    preindice = 6 * (i + (j - 1) * (resolution + 1));
                     surface_field[indice] = surface_field[preindice + 3];
                     surface_field[indice + 1] = surface_field[preindice + 4];
                     surface_field[indice + 2] = surface_field[preindice + 5];
@@ -468,17 +470,17 @@ void Display()
                 else
                 {
                     surface_field[indice] = x;
-                    surface_field[indice + 1] = field_creation(x,y);
+                    surface_field[indice + 1] = field_creation(x, y);
                     surface_field[indice + 2] = -1;
                 }
             }
         }
 
         /* Normals */
-        for (j = 0; j < RESOLUTION; j++)
-            for (i = 0; i <= RESOLUTION; i++)
+        for (j = 0; j < resolution; j++)
+            for (i = 0; i <= resolution; i++)
             {
-                indice = 6 * (i + j * (RESOLUTION + 1));
+                indice = 6 * (i + j * (resolution + 1));
 
                 v1x = surface[indice + 3];
                 v1y = surface[indice + 4];
@@ -488,7 +490,7 @@ void Display()
                 v2y = surface[indice + 1];
                 v2z = surface[indice + 2];
 
-                if (i < RESOLUTION)
+                if (i < resolution)
                 {
                     v3x = surface[indice + 9];
                     v3y = surface[indice + 10];
@@ -531,7 +533,7 @@ void Display()
                 if (j != 0)
                 {
                     /* Values were computed during the previous loop */
-                    preindice = 6 * (i + (j - 1) * (RESOLUTION + 1));
+                    preindice = 6 * (i + (j - 1) * (resolution + 1));
                     normal[indice] = normal[preindice + 3];
                     normal[indice + 1] = normal[preindice + 4];
                     normal[indice + 2] = normal[preindice + 5];
@@ -693,10 +695,10 @@ void Display()
         glDisable(GL_TEXTURE_2D);
         glColor3f(1, 0, 0);
         glBegin(GL_LINES);
-        for (j = 0; j < RESOLUTION; j++)
-            for (i = 0; i <= RESOLUTION; i++)
+        for (j = 0; j < resolution; j++)
+            for (i = 0; i <= resolution; i++)
             {
-                indice = 6 * (i + j * (RESOLUTION + 1));
+                indice = 6 * (i + j * (resolution + 1));
                 glVertex3fv(&(surface[indice]));
                 glVertex3f(surface[indice] + normal[indice] / 50,
                            surface[indice + 1] + normal[indice + 1] / 50,
@@ -720,60 +722,82 @@ void Display()
     glEnableClientState(GL_VERTEX_ARRAY);
     glNormalPointer(GL_FLOAT, 0, normal);
     glVertexPointer(3, GL_FLOAT, 0, surface);
-    for (int i = 0; i < RESOLUTION; i++)
+    for (int i = 0; i < resolution; i++)
         glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
 
     glEnd();
 
     ////////// FIELD //////////
-    // glDisable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_2D);
+
+    // GLuint tex2;
+    // // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    // glGenTextures(1, &tex2);
+    
+    // glActiveTexture(GL_TEXTURE1);
+    // glBindTexture(GL_TEXTURE_2D, tex2); // make tex texture current
+
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+    // glEnable(GL_TEXTURE_2D);
+    // glTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, grass_texture);
+
+
+    // // glBindTexture(GL_TEXTURE_2D, tex2);
+    // gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, 256, 256, GL_RGB,
+    //                   GL_NONE, water_texture);
     glTranslatef(2, 0, 0);
-    glColor3f(0, 1, 0);
+    glColor3f(0, 0.8, 0);
+    
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < RESOLUTION; i++)
+    for (int i = 0; i < resolution; i++)
         glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
     glEnd();
     glTranslatef(0, 0, 2);
     glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < RESOLUTION; i++)
+    for (int i = 0; i < resolution; i++)
         glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
     glEnd();
     glTranslatef(-2, 0, 0);
     glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < RESOLUTION; i++)
+    for (int i = 0; i < resolution; i++)
         glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
     glEnd();
     glTranslatef(-2, 0, 0);
     glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < RESOLUTION; i++)
+    for (int i = 0; i < resolution; i++)
         glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
     glEnd();
     glTranslatef(-2, 0, 0);
     glTranslatef(2, 0, -1);
     glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < RESOLUTION; i++)
+    for (int i = 0; i < resolution; i++)
         glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
     glEnd();
     glTranslatef(-2, 0, 1);
     glTranslatef(2, 0, -3);
     glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < RESOLUTION; i++)
+    for (int i = 0; i < resolution; i++)
         glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
     glEnd();
     glTranslatef(2, 0, -1);
     glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < RESOLUTION; i++)
+    for (int i = 0; i < resolution; i++)
         glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
     glEnd();
     glTranslatef(2, 0, 0);
     glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < RESOLUTION; i++)
+    for (int i = 0; i < resolution; i++)
         glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
     glEnd();
     glTranslatef(-4, 0, 0);
     glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < RESOLUTION; i++)
+    for (int i = 0; i < resolution; i++)
         glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
     glEnd();
 
@@ -1102,16 +1126,22 @@ void InitGraphics()
     glutTabletButtonFunc(NULL);
     glutMenuStateFunc(NULL);
     glutTimerFunc(-1, NULL, 0);
-    glutIdleFunc(Animate);
+    glutIdleFunc(NULL);
 
     InitNoise();
-
+    int width = 1024;
+    int height = 512;
     /* Texture loading  */
     glGenTextures(1, &tex);
     load_texture("alpha.jpg", alpha_texture, GL_ALPHA, 256);
     load_texture("reflection.jpg", water_texture, GL_RGB, 256);
     load_texture("reflection2.jpg", water_texture2, GL_RGB, 256);
     load_texture("reflection3.jpg", water_texture3, GL_RGB, 256);
+    // load_texture("grass.jpg", grass_texture, GL_RGB, 256);
+
+    
+    unsigned char *grass_texture = BmpToTexture("mars.bmp", &width, &height);
+
 
     // init glew (a window must be open to do this):
 
