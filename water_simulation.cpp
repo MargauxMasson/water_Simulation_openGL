@@ -274,7 +274,7 @@ int load_texture(const char *filename,
     return 0;
 }
 
-#define MS_PER_CYCLE 20000
+#define MS_PER_CYCLE 2000
 // function prototypes:
 
 void Animate();
