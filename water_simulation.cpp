@@ -585,7 +585,6 @@ void Display()
     }
 
     glBindTexture(GL_TEXTURE_2D, tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
     gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, 256, 256, GL_RGBA,
                       GL_UNSIGNED_BYTE, total_texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -727,7 +726,7 @@ void Display()
     glEnd();
 
     ////////// FIELD //////////
-    glDisable(GL_TEXTURE_2D);
+    // glDisable(GL_TEXTURE_2D);
     glTranslatef(2, 0, 0);
     glColor3f(0, 1, 0);
     glEnableClientState(GL_VERTEX_ARRAY);
