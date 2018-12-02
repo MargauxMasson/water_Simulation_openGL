@@ -446,7 +446,7 @@ void Display()
 
                 x = i * delta - 1;
                 surface_field[indice + 3] = x;
-                surface_field[indice + 4] = 0;
+                surface_field[indice + 4] = Noise(10 * x, 10 * y, 20, 0) / 8;
                 surface_field[indice + 5] = y;
                 if (j != 0)
                 {
@@ -459,7 +459,7 @@ void Display()
                 else
                 {
                     surface_field[indice] = x;
-                    surface_field[indice + 1] = 0;
+                    surface_field[indice + 1] = Noise(10 * x, 10 * y, 20, 0) / 8;
                     surface_field[indice + 2] = -1;
                 }
             }
