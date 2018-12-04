@@ -17,10 +17,12 @@
 #include <GL/glu.h>
 #include "glut.h"
 #include "bmptotexture.cpp"
+#include "loadobjfile.cpp"
 
 #include "noise.cpp"
 float Time;
-#define resolution 100
+#define resolution 50
+#define resolution2 400
 // int resolution = 100;
 #define MOD 0xff
 
@@ -177,12 +179,14 @@ static int wire_frame = 0;
 static int normals = 0;
 
 static float surface[6 * resolution * (resolution + 1)];
-static float surface_field[6 * resolution * (resolution + 1)];
+static float surface_field[6 * resolution2 * (resolution2 + 1)];
 static float normal[6 * resolution * (resolution + 1)];
 
 const float t = glutGet(GLUT_ELAPSED_TIME) / 1000.;
 const float delta = 2. / resolution;
+const float delta2 = 10. / resolution2;
 const unsigned int length = 2 * (resolution + 1);
+const unsigned int length2 = 2 * (resolution2 + 1);
 const float xn = (resolution + 1) * delta + 1;
 unsigned int i;
 unsigned int j;
@@ -229,11 +233,11 @@ static float waves_creation(const float x, const float y, const float t)
 
 static float field_creation(const float x, const float y)
 {
-    const float x2 = x - 3;
-    const float y2 = y + 1;
-    const float xx = x2 * x2;
-    const float yy = y2 * y2;
-    return (Noise(10 * x, 10 * y, 20, 0) / 8) * grass_height;
+    // const float x2 = x - 5000;
+    // const float y2 = y - 200;
+    // const float xx = x2 * x2;
+    // const float yy = y2 * y2;
+    return (10*Noise(x, y, 0, 0) / 200)*grass_height;
 }
 
 /*
@@ -362,7 +366,6 @@ int main(int argc, char *argv[])
 
 void Animate()
 {
-
     glutSetWindow(MainWindow);
     glutPostRedisplay();
 }
@@ -412,6 +415,7 @@ void Display()
 
     glLoadIdentity();
 
+
     if (!Frozen)
     {
         /* Vertices */
@@ -443,29 +447,30 @@ void Display()
             }
         }
 
-        for (j = 0; j < resolution; j++)
+        
+        for (j = 0; j < resolution2+1; j++)
         {
-            y = (j + 1) * delta - 1;
-            for (i = 0; i <= resolution; i++)
+            y = (j + 1) * delta2 - 1;
+            for (i = 0; i <= resolution2 +1; i++)
             {
-                indice = 6 * (i + j * (resolution + 1));
+                indice = 6 * (i + j * (resolution2 + 1));
 
-                x = i * delta - 1;
+                x = i * delta2 - 1;
                 surface_field[indice + 3] = x;
                 surface_field[indice + 4] = field_creation(x, y);
                 surface_field[indice + 5] = y;
                 if (j != 0)
                 {
                     /* Values were computed during the previous loop */
-                    preindice = 6 * (i + (j - 1) * (resolution + 1));
+                    preindice = 6 * (i + (j - 1) * (resolution2 + 1));
                     surface_field[indice] = surface_field[preindice + 3];
-                    surface_field[indice + 1] = surface_field[preindice + 4];
+                    surface_field[indice + 1] = field_creation(x, y);
                     surface_field[indice + 2] = surface_field[preindice + 5];
                 }
                 else
                 {
                     surface_field[indice] = x;
-                    surface_field[indice + 1] = field_creation(x, y);
+                    surface_field[indice + 1] = 0;
                     surface_field[indice + 2] = -1;
                 }
             }
@@ -684,6 +689,22 @@ void Display()
         glEnable(GL_TEXTURE_2D);
     }
 
+
+    // GLuint DL;
+    // DL = glGenLists(1);
+    // glTranslatef(-2,-2,0);
+    // glScalef(-5,1,-5);
+    // glNewList(DL, GL_COMPILE);
+    // // glScaled();
+    // glDisable(GL_TEXTURE_2D);
+    // // glScalef(0.1, 0.1, 0.1);
+    // // glTranslatef(-2,-2,0);
+    // LoadObjFile("Hazelnut.obj");
+    // glEndList();
+    // glCallList(DL);
+    // glTranslatef(2,2,0);
+    // glScalef(5,1,5);
+
     //// Draw normals ////
     if (normals != 0)
     {
@@ -702,6 +723,7 @@ void Display()
 
         glEnd();
     }
+
 
     /// Water ///
     if (isTexture)
@@ -723,7 +745,7 @@ void Display()
     glEnd();
 
     ////////// FIELD //////////
-    glDisable(GL_TEXTURE_2D);
+    // glDisable(GL_TEXTURE_2D);
 
     // GLuint tex2;
     // // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -739,61 +761,78 @@ void Display()
     // glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
     // glEnable(GL_TEXTURE_2D);
-    // glTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, grass_texture);
+    // glTexImage2D(GL_TEXTURE_2D, 0, 3, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, Texture);
+
+    glDisableClientState(GL_NORMAL_ARRAY);
+    glEnable(GL_NORMALIZE);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    GLuint tex2;
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glGenTextures(1, &tex2);
+
+    glBindTexture(GL_TEXTURE_2D, tex2); // make tex texture current
+    // and set its parameters
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    // glTexImage2D(GL_TEXTURE_2D, 0, 3, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, grass_texture);
 
     // // glBindTexture(GL_TEXTURE_2D, tex2);
     // gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, 256, 256, GL_RGB,
     //                   GL_NONE, water_texture);
-    glTranslatef(2, 0, 0);
-    glColor3f(0, 0.8, 0);
+    glTranslatef(-5, -0.5, -4);
+    glColor3f(0, 0.2, 0);
 
-    glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < resolution; i++)
-        glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
+    for (int i = 0; i < resolution2; i++)
+        glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
     glEnd();
-    glTranslatef(0, 0, 2);
-    glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < resolution; i++)
-        glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
-    glEnd();
-    glTranslatef(-2, 0, 0);
-    glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < resolution; i++)
-        glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
-    glEnd();
-    glTranslatef(-2, 0, 0);
-    glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < resolution; i++)
-        glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
-    glEnd();
-    glTranslatef(-2, 0, 0);
-    glTranslatef(2, 0, -1);
-    glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < resolution; i++)
-        glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
-    glEnd();
-    glTranslatef(-2, 0, 1);
-    glTranslatef(2, 0, -3);
-    glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < resolution; i++)
-        glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
-    glEnd();
-    glTranslatef(2, 0, -1);
-    glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < resolution; i++)
-        glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
-    glEnd();
-    glTranslatef(2, 0, 0);
-    glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < resolution; i++)
-        glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
-    glEnd();
-    glTranslatef(-4, 0, 0);
-    glVertexPointer(3, GL_FLOAT, 0, surface_field);
-    for (int i = 0; i < resolution; i++)
-        glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
-    glEnd();
+    // glTranslatef(0, 0, 2);
+    // glVertexPointer(3, GL_FLOAT, 0, surface_field);
+    // for (int i = 0; i < resolution2; i++)
+    //     glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+    // glEnd();
+
+    // glTranslatef(-2, 0, 0);
+    // glVertexPointer(3, GL_FLOAT, 0, surface_field);
+    // for (int i = 0; i < resolution; i++)
+    //     glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
+    // glEnd();
+    // glTranslatef(-2, 0, 0);
+    // glVertexPointer(3, GL_FLOAT, 0, surface_field);
+    // for (int i = 0; i < resolution; i++)
+    //     glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
+    // glEnd();
+    // glTranslatef(-2, 0, 0);
+    // glTranslatef(2, 0, -1);
+    // glVertexPointer(3, GL_FLOAT, 0, surface_field);
+    // for (int i = 0; i < resolution; i++)
+    //     glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
+    // glEnd();
+    // glTranslatef(-2, 0, 1);
+    // glTranslatef(2, 0, -3);
+    // glVertexPointer(3, GL_FLOAT, 0, surface_field);
+    // for (int i = 0; i < resolution; i++)
+    //     glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
+    // glEnd();
+    // glTranslatef(2, 0, -1);
+    // glVertexPointer(3, GL_FLOAT, 0, surface_field);
+    // for (int i = 0; i < resolution; i++)
+    //     glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
+    // glEnd();
+    // glTranslatef(2, 0, 0);
+    // glVertexPointer(3, GL_FLOAT, 0, surface_field);
+    // for (int i = 0; i < resolution; i++)
+    //     glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
+    // glEnd();
+    // glTranslatef(-4, 0, 0);
+    // glVertexPointer(3, GL_FLOAT, 0, surface_field);
+    // for (int i = 0; i < resolution; i++)
+    //     glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
+    // glEnd();
 
     glFlush();
     glutPostRedisplay();
