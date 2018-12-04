@@ -484,41 +484,85 @@ void Display()
             }
         }
 
+        /* Normals */
+        for (j = 0; j < resolution; j++)
+            for (i = 0; i <= resolution; i++)
+            {
+                indice = 6 * (i + j * (resolution + 1));
 
-            /* Normals */
-            for (j = 0; j < resolution; j++)
-                for (i = 0; i <= resolution; i++)
+                v1x = surface[indice + 3];
+                v1y = surface[indice + 4];
+                v1z = surface[indice + 5];
+
+                v2x = v1x;
+                v2y = surface[indice + 1];
+                v2z = surface[indice + 2];
+
+                if (i < resolution)
                 {
-                    indice = 6 * (i + j * (resolution + 1));
+                    v3x = surface[indice + 9];
+                    v3y = surface[indice + 10];
+                    v3z = v1z;
+                }
+                else
+                {
+                    v3x = xn;
+                    v3y = waves_creation(xn, v1z, t);
+                    v3z = v1z;
+                }
 
-                    v1x = surface[indice + 3];
-                    v1y = surface[indice + 4];
-                    v1z = surface[indice + 5];
+                vax = v2x - v1x;
+                vay = v2y - v1y;
+                vaz = v2z - v1z;
 
-                    v2x = v1x;
-                    v2y = surface[indice + 1];
-                    v2z = surface[indice + 2];
+                vbx = v3x - v1x;
+                vby = v3y - v1y;
+                vbz = v3z - v1z;
 
-                    if (i < resolution)
-                    {
-                        v3x = surface[indice + 9];
-                        v3y = surface[indice + 10];
-                        v3z = v1z;
-                    }
-                    else
-                    {
-                        v3x = xn;
-                        v3y = waves_creation(xn, v1z, t);
-                        v3z = v1z;
-                    }
+                nx = (vby * vaz) - (vbz * vay);
+                ny = (vbz * vax) - (vbx * vaz);
+                nz = (vbx * vay) - (vby * vax);
 
-                    vax = v2x - v1x;
-                    vay = v2y - v1y;
-                    vaz = v2z - v1z;
+                l = sqrtf(nx * nx + ny * ny + nz * nz);
+                if (l != 0)
+                {
+                    l = 1 / l;
+                    normal[indice + 3] = nx * l;
+                    normal[indice + 4] = ny * l;
+                    normal[indice + 5] = nz * l;
+                }
+                else
+                {
+                    normal[indice + 3] = 0;
+                    normal[indice + 4] = 1;
+                    normal[indice + 5] = 0;
+                }
 
-                    vbx = v3x - v1x;
-                    vby = v3y - v1y;
-                    vbz = v3z - v1z;
+                if (j != 0)
+                {
+                    /* Values were computed during the previous loop */
+                    preindice = 6 * (i + (j - 1) * (resolution + 1));
+                    normal[indice] = normal[preindice + 3];
+                    normal[indice + 1] = normal[preindice + 4];
+                    normal[indice + 2] = normal[preindice + 5];
+                }
+                else
+                {
+                    /* 	    v1x = v1x; */
+                    // v1y = waves_creation(v1x, (j - 1) * delta - 1, t);
+                    v1z = (j - 1) * delta - 1;
+
+                    /* 	    v3x = v3x; */
+                    // v3y = waves_creation(v3x, v2z, t);
+                    v3z = v2z;
+
+                    vax = v1x - v2x;
+                    vay = v1y - v2y;
+                    vaz = v1z - v2z;
+
+                    vbx = v3x - v2x;
+                    vby = v3y - v2y;
+                    vbz = v3z - v2z;
 
                     nx = (vby * vaz) - (vbz * vay);
                     ny = (vbz * vax) - (vbx * vaz);
@@ -528,997 +572,970 @@ void Display()
                     if (l != 0)
                     {
                         l = 1 / l;
-                        normal[indice + 3] = nx * l;
-                        normal[indice + 4] = ny * l;
-                        normal[indice + 5] = nz * l;
+                        normal[indice] = nx * l;
+                        normal[indice + 1] = ny * l;
+                        normal[indice + 2] = nz * l;
                     }
                     else
                     {
-                        normal[indice + 3] = 0;
-                        normal[indice + 4] = 1;
-                        normal[indice + 5] = 0;
-                    }
-
-                    if (j != 0)
-                    {
-                        /* Values were computed during the previous loop */
-                        preindice = 6 * (i + (j - 1) * (resolution + 1));
-                        normal[indice] = normal[preindice + 3];
-                        normal[indice + 1] = normal[preindice + 4];
-                        normal[indice + 2] = normal[preindice + 5];
-                    }
-                    else
-                    {
-                        /* 	    v1x = v1x; */
-                        // v1y = waves_creation(v1x, (j - 1) * delta - 1, t);
-                        v1z = (j - 1) * delta - 1;
-
-                        /* 	    v3x = v3x; */
-                        // v3y = waves_creation(v3x, v2z, t);
-                        v3z = v2z;
-
-                        vax = v1x - v2x;
-                        vay = v1y - v2y;
-                        vaz = v1z - v2z;
-
-                        vbx = v3x - v2x;
-                        vby = v3y - v2y;
-                        vbz = v3z - v2z;
-
-                        nx = (vby * vaz) - (vbz * vay);
-                        ny = (vbz * vax) - (vbx * vaz);
-                        nz = (vbx * vay) - (vby * vax);
-
-                        l = sqrtf(nx * nx + ny * ny + nz * nz);
-                        if (l != 0)
-                        {
-                            l = 1 / l;
-                            normal[indice] = nx * l;
-                            normal[indice + 1] = ny * l;
-                            normal[indice + 2] = nz * l;
-                        }
-                        else
-                        {
-                            normal[indice] = 0;
-                            normal[indice + 1] = 1;
-                            normal[indice + 2] = 0;
-                        }
+                        normal[indice] = 0;
+                        normal[indice + 1] = 1;
+                        normal[indice + 2] = 0;
                     }
                 }
-        }
+            }
+    }
 
-        for (int i = 0; i < 256 * 256; i++)
-        {
-            total_texture[4 * i] = Texture[3 * i];
-            total_texture[4 * i + 1] = Texture[3 * i + 1];
-            total_texture[4 * i + 2] = Texture[3 * i + 2];
-            total_texture[4 * i + 3] = alpha_texture[i];
-        }
+    for (int i = 0; i < 256 * 256; i++)
+    {
+        total_texture[4 * i] = Texture[3 * i];
+        total_texture[4 * i + 1] = Texture[3 * i + 1];
+        total_texture[4 * i + 2] = Texture[3 * i + 2];
+        total_texture[4 * i + 3] = alpha_texture[i];
+    }
 
-        glBindTexture(GL_TEXTURE_2D, tex);
-        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, 256, 256, GL_RGBA,
-                          GL_UNSIGNED_BYTE, total_texture);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        glEnable(GL_TEXTURE_GEN_S);
-        glEnable(GL_TEXTURE_GEN_T);
-        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-        glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, 256, 256, GL_RGBA,
+                      GL_UNSIGNED_BYTE, total_texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glEnable(GL_TEXTURE_GEN_S);
+    glEnable(GL_TEXTURE_GEN_T);
+    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
 
-        if (DebugOn != 0)
-        {
-            fprintf(stderr, "Display\n");
-        }
+    if (DebugOn != 0)
+    {
+        fprintf(stderr, "Display\n");
+    }
 
-        // set which window we want to do the graphics into:
+    // set which window we want to do the graphics into:
 
-        glutSetWindow(MainWindow);
+    glutSetWindow(MainWindow);
 
-        // erase the background:
+    // erase the background:
 
-        glDrawBuffer(GL_BACK);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDrawBuffer(GL_BACK);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if (DepthBufferOn != 0)
-            glEnable(GL_DEPTH_TEST);
-        else
-            glDisable(GL_DEPTH_TEST);
+    if (DepthBufferOn != 0)
+        glEnable(GL_DEPTH_TEST);
+    else
+        glDisable(GL_DEPTH_TEST);
 
-        // specify shading to be flat:
+    // specify shading to be flat:
 
-        glShadeModel(GL_FLAT);
+    glShadeModel(GL_FLAT);
 
-        // set the viewport to a square centered in the window:
+    // set the viewport to a square centered in the window:
 
-        GLsizei vx = glutGet(GLUT_WINDOW_WIDTH);
-        GLsizei vy = glutGet(GLUT_WINDOW_HEIGHT);
-        GLsizei v = vx < vy ? vx : vy; // minimum dimension
-        GLint xl = (vx - v) / 2;
-        GLint yb = (vy - v) / 2;
-        glViewport(xl, yb, v, v);
+    GLsizei vx = glutGet(GLUT_WINDOW_WIDTH);
+    GLsizei vy = glutGet(GLUT_WINDOW_HEIGHT);
+    GLsizei v = vx < vy ? vx : vy; // minimum dimension
+    GLint xl = (vx - v) / 2;
+    GLint yb = (vy - v) / 2;
+    glViewport(xl, yb, v, v);
 
-        // set the viewing volume:
-        // remember that the Z clipping  values are actually
-        // given as DISTANCES IN FRONT OF THE EYE
-        // USE gluOrtho2D( ) IF YOU ARE DOING 2D !
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        if (WhichProjection == ORTHO)
-            glOrtho(-3., 3., -3., 3., 0.1, 1000.);
-        else
-            gluPerspective(90., 1., 0.1, 1000.);
+    // set the viewing volume:
+    // remember that the Z clipping  values are actually
+    // given as DISTANCES IN FRONT OF THE EYE
+    // USE gluOrtho2D( ) IF YOU ARE DOING 2D !
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    if (WhichProjection == ORTHO)
+        glOrtho(-3., 3., -3., 3., 0.1, 1000.);
+    else
+        gluPerspective(90., 1., 0.1, 1000.);
 
-        // place the objects into the scene:
+    // place the objects into the scene:
 
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
-        // set the eye position, look-at position, and up-vector:
-        gluLookAt(2, 2, 0, 0., 0., 0., 0., 1., 0.);
+    // set the eye position, look-at position, and up-vector:
+    gluLookAt(2, 2, 0, 0., 0., 0., 0., 1., 0.);
 
-        // rotate the scene:
+    // rotate the scene:
 
-        glRotatef((GLfloat)Yrot, 0., 1., 0.);
-        glRotatef((GLfloat)Xrot, 1., 0., 0.);
+    glRotatef((GLfloat)Yrot, 0., 1., 0.);
+    glRotatef((GLfloat)Xrot, 1., 0., 0.);
 
-        // uniformly scale the scene:
+    // uniformly scale the scene:
 
-        if (Scale < MINSCALE)
-            Scale = MINSCALE;
-        glScalef((GLfloat)Scale, (GLfloat)Scale, (GLfloat)Scale);
+    if (Scale < MINSCALE)
+        Scale = MINSCALE;
+    glScalef((GLfloat)Scale, (GLfloat)Scale, (GLfloat)Scale);
 
-        // set the fog parameters:
+    // set the fog parameters:
 
-        if (DepthCueOn != 0)
-        {
-            glFogi(GL_FOG_MODE, FOGMODE);
-            glFogfv(GL_FOG_COLOR, FOGCOLOR);
-            glFogf(GL_FOG_DENSITY, FOGDENSITY);
-            glFogf(GL_FOG_START, FOGSTART);
-            glFogf(GL_FOG_END, FOGEND);
-            glEnable(GL_FOG);
-        }
-        else
-        {
-            glDisable(GL_FOG);
-        }
+    if (DepthCueOn != 0)
+    {
+        glFogi(GL_FOG_MODE, FOGMODE);
+        glFogfv(GL_FOG_COLOR, FOGCOLOR);
+        glFogf(GL_FOG_DENSITY, FOGDENSITY);
+        glFogf(GL_FOG_START, FOGSTART);
+        glFogf(GL_FOG_END, FOGEND);
+        glEnable(GL_FOG);
+    }
+    else
+    {
+        glDisable(GL_FOG);
+    }
 
-        glTranslatef(0, 0.2, 0);
+    glTranslatef(0, 0.2, 0);
 
-        if (wire_frame != 0)
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glDisable(GL_TEXTURE_2D);
-        }
-        else
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_NONE);
-            glEnable(GL_TEXTURE_2D);
-        }
+    if (wire_frame != 0)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDisable(GL_TEXTURE_2D);
+    }
+    else
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_NONE);
+        glEnable(GL_TEXTURE_2D);
+    }
 
-        //// Draw normals ////
-        if (normals != 0)
-        {
-            glDisable(GL_TEXTURE_2D);
-            glColor3f(1, 0, 0);
-            glBegin(GL_LINES);
-            for (j = 0; j < resolution; j++)
-                for (i = 0; i <= resolution; i++)
-                {
-                    indice = 6 * (i + j * (resolution + 1));
-                    glVertex3fv(&(surface[indice]));
-                    glVertex3f(surface[indice] + normal[indice] / 50,
-                               surface[indice + 1] + normal[indice + 1] / 50,
-                               surface[indice + 2] + normal[indice + 2] / 50);
-                }
-
-            glEnd();
-        }
-
-        /// Water ///
-        if (isTexture)
-        {
-            glEnable(GL_TEXTURE_2D);
-        }
-        else
-        {
-            glDisable(GL_TEXTURE_2D);
-        }
-        glColor3f(1, 1, 1);
-        glEnableClientState(GL_NORMAL_ARRAY);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glNormalPointer(GL_FLOAT, 0, normal);
-        glVertexPointer(3, GL_FLOAT, 0, surface);
-        for (int i = 0; i < resolution; i++)
-            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+    //// Draw normals ////
+    if (normals != 0)
+    {
+        glDisable(GL_TEXTURE_2D);
+        glColor3f(1, 0, 0);
+        glBegin(GL_LINES);
+        for (j = 0; j < resolution; j++)
+            for (i = 0; i <= resolution; i++)
+            {
+                indice = 6 * (i + j * (resolution + 1));
+                glVertex3fv(&(surface[indice]));
+                glVertex3f(surface[indice] + normal[indice] / 50,
+                           surface[indice + 1] + normal[indice + 1] / 50,
+                           surface[indice + 2] + normal[indice + 2] / 50);
+            }
 
         glEnd();
+    }
 
-        //////// Walls ////////////
-        if (!field && !only_water)
-        {
-            // transparency
-            // glDisable(GL_TEXTURE_2D);
-            // glColor3f(0,0,0.5);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_ONE, GL_ONE);
-
-            glTranslatef(0, -2, 0);
-            // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            glBegin(GL_TRIANGLE_FAN);
-            glVertex3f(-1, 0, -1);
-            glVertex3f(-1, 0, 1);
-            glVertex3f(1, 0, 1);
-            glVertex3f(1, 0, -1);
-            glEnd();
-
-            glTranslatef(-1, 0.99, 0);
-            glRotatef(90, 1, 0, 0);
-            glRotatef(90, 0, 0, 1);
-            glBegin(GL_TRIANGLE_FAN);
-            glVertex3f(-1, 0, -1);
-            glVertex3f(-1, 0, 1);
-            glVertex3f(1, 0, 1);
-            glVertex3f(1, 0, -1);
-            glEnd();
-            glTranslatef(0, -2, 0);
-            glBegin(GL_TRIANGLE_FAN);
-            glVertex3f(-1, 0, -1);
-            glVertex3f(-1, 0, 1);
-            glVertex3f(1, 0, 1);
-            glVertex3f(1, 0, -1);
-            glEnd();
-        }
-
+    /// Water ///
+    if (isTexture)
+    {
+        glEnable(GL_TEXTURE_2D);
+    }
+    else
+    {
         glDisable(GL_TEXTURE_2D);
-        glDisable(GL_BLEND);
-        if (field)
-        {
-            ////////// FIELD //////////
-            glDisable(GL_TEXTURE_2D);
-            glDisableClientState(GL_NORMAL_ARRAY);
-
-            glTranslatef(2, 0, 0);
-            glColor3f(0, 0.8, 0);
-
-            glEnableClientState(GL_VERTEX_ARRAY);
-            glVertexPointer(3, GL_FLOAT, 0, surface_field);
-            for (int i = 0; i < resolution; i++)
-                glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
-            glEnd();
-            glTranslatef(0, 0, 2);
-            glVertexPointer(3, GL_FLOAT, 0, surface_field);
-            for (int i = 0; i < resolution; i++)
-                glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
-            glEnd();
-            glTranslatef(-2, 0, 0);
-            glVertexPointer(3, GL_FLOAT, 0, surface_field);
-            for (int i = 0; i < resolution; i++)
-                glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
-            glEnd();
-            glTranslatef(-2, 0, 0);
-            glVertexPointer(3, GL_FLOAT, 0, surface_field);
-            for (int i = 0; i < resolution; i++)
-                glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
-            glEnd();
-            glTranslatef(-2, 0, 0);
-            glTranslatef(2, 0, -1);
-            glVertexPointer(3, GL_FLOAT, 0, surface_field);
-            for (int i = 0; i < resolution; i++)
-                glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
-            glEnd();
-            glTranslatef(-2, 0, 1);
-            glTranslatef(2, 0, -3);
-            glVertexPointer(3, GL_FLOAT, 0, surface_field);
-            for (int i = 0; i < resolution; i++)
-                glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
-            glEnd();
-            glTranslatef(2, 0, -1);
-            glVertexPointer(3, GL_FLOAT, 0, surface_field);
-            for (int i = 0; i < resolution; i++)
-                glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
-            glEnd();
-            glTranslatef(2, 0, 0);
-            glVertexPointer(3, GL_FLOAT, 0, surface_field);
-            for (int i = 0; i < resolution; i++)
-                glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
-            glEnd();
-            glTranslatef(-4, 0, 0);
-            glVertexPointer(3, GL_FLOAT, 0, surface_field);
-            for (int i = 0; i < resolution; i++)
-                glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
-            glEnd();
-        }
-
-        glFlush();
-        glutPostRedisplay();
-
-        // since we are using glScalef( ), be sure normals get unitized:
-
-        glEnable(GL_NORMALIZE);
-
-        // draw the current object:
-        // glCallList(BoxList);
-
-        if (DepthFightingOn != 0)
-        {
-            glPushMatrix();
-            glRotatef(90., 0., 1., 0.);
-            glCallList(BoxList);
-            glPopMatrix();
-        }
-
-        // draw some gratuitous text that just rotates on top of the scene:
-
-        glDisable(GL_DEPTH_TEST);
-        glColor3f(1., 1., 1.);
-        DoRasterString(0., 1., 0., "");
-
-        // draw some gratuitous text that is fixed on the screen:
-        //
-        // the projection matrix is reset to define a scene whose
-        // world coordinate system goes from 0-100 in each axis
-        //
-        // this is called "percent units", and is just a convenience
-        //
-        // the modelview matrix is reset to identity as we don't
-        // want to transform these coordinates
-
-        glDisable(GL_DEPTH_TEST);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        gluOrtho2D(0., 100., 0., 100.);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glColor3f(1., 1., 1.);
-        DoRasterString(5., 5., 0., "Margaux Masson - Final Project - Water Simulation");
-
-        // swap the double-buffered framebuffers:
-
-        glutSwapBuffers();
-
-        // be sure the graphics buffer has been sent:
-        // note: be sure to use glFlush( ) here, not glFinish( ) !
-
-        glFlush();
     }
+    glColor3f(1, 1, 1);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glNormalPointer(GL_FLOAT, 0, normal);
+    glVertexPointer(3, GL_FLOAT, 0, surface);
+    for (int i = 0; i < resolution; i++)
+        glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
 
-    void DoAxesMenu(int id)
+    glEnd();
+
+    //////// Walls ////////////
+    if (!field && !only_water)
     {
-        AxesOn = id;
+        // transparency
+        // glDisable(GL_TEXTURE_2D);
+        // glColor3f(0,0,0.5);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
 
-        glutSetWindow(MainWindow);
-        glutPostRedisplay();
+        glTranslatef(0, -2, 0);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex3f(-1, 0, -1);
+        glVertex3f(-1, 0, 1);
+        glVertex3f(1, 0, 1);
+        glVertex3f(1, 0, -1);
+        glEnd();
+
+        glTranslatef(-1, 0.99, 0);
+        glRotatef(90, 1, 0, 0);
+        glRotatef(90, 0, 0, 1);
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex3f(-1, 0, -1);
+        glVertex3f(-1, 0, 1);
+        glVertex3f(1, 0, 1);
+        glVertex3f(1, 0, -1);
+        glEnd();
+
+        glTranslatef(0, -2, 0);
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex3f(-1, 0, -1);
+        glVertex3f(-1, 0, 1);
+        glVertex3f(1, 0, 1);
+        glVertex3f(1, 0, -1);
+        glEnd();
+
+        glTranslatef(-1, 1, 0);
+        glRotatef(90, 0, 0, 1);
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex3f(-1, 0, -1);
+        glVertex3f(-1, 0, 1);
+        glVertex3f(1, 0, 1);
+        glVertex3f(1, 0, -1);
+        glEnd();
+
+        glTranslatef(0, -2, 0);
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex3f(-1, 0, -1);
+        glVertex3f(-1, 0, 1);
+        glVertex3f(1, 0, 1);
+        glVertex3f(1, 0, -1);
+        glEnd();
     }
 
-    void DoColorMenu(int id)
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_BLEND);
+    if (field)
     {
-        WhichColor = id - RED;
+        ////////// FIELD //////////
+        glDisable(GL_TEXTURE_2D);
+        glDisableClientState(GL_NORMAL_ARRAY);
 
-        glutSetWindow(MainWindow);
-        glutPostRedisplay();
+        glTranslatef(2, 0, 0);
+        glColor3f(0, 0.8, 0);
+
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glVertexPointer(3, GL_FLOAT, 0, surface_field);
+        for (int i = 0; i < resolution; i++)
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+        glEnd();
+        glTranslatef(0, 0, 2);
+        glVertexPointer(3, GL_FLOAT, 0, surface_field);
+        for (int i = 0; i < resolution; i++)
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+        glEnd();
+        glTranslatef(-2, 0, 0);
+        glVertexPointer(3, GL_FLOAT, 0, surface_field);
+        for (int i = 0; i < resolution; i++)
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+        glEnd();
+        glTranslatef(-2, 0, 0);
+        glVertexPointer(3, GL_FLOAT, 0, surface_field);
+        for (int i = 0; i < resolution; i++)
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+        glEnd();
+        glTranslatef(-2, 0, 0);
+        glTranslatef(2, 0, -1);
+        glVertexPointer(3, GL_FLOAT, 0, surface_field);
+        for (int i = 0; i < resolution; i++)
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+        glEnd();
+        glTranslatef(-2, 0, 1);
+        glTranslatef(2, 0, -3);
+        glVertexPointer(3, GL_FLOAT, 0, surface_field);
+        for (int i = 0; i < resolution; i++)
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+        glEnd();
+        glTranslatef(2, 0, -1);
+        glVertexPointer(3, GL_FLOAT, 0, surface_field);
+        for (int i = 0; i < resolution; i++)
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+        glEnd();
+        glTranslatef(2, 0, 0);
+        glVertexPointer(3, GL_FLOAT, 0, surface_field);
+        for (int i = 0; i < resolution; i++)
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+        glEnd();
+        glTranslatef(-4, 0, 0);
+        glVertexPointer(3, GL_FLOAT, 0, surface_field);
+        for (int i = 0; i < resolution; i++)
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+        glEnd();
     }
 
-    void DoDebugMenu(int id)
-    {
-        DebugOn = id;
+    glFlush();
+    glutPostRedisplay();
 
-        glutSetWindow(MainWindow);
-        glutPostRedisplay();
-    }
+    // since we are using glScalef( ), be sure normals get unitized:
 
-    void DoDepthBufferMenu(int id)
-    {
-        DepthBufferOn = id;
+    glEnable(GL_NORMALIZE);
 
-        glutSetWindow(MainWindow);
-        glutPostRedisplay();
-    }
+    // draw the current object:
+    // glCallList(BoxList);
 
-    void DoDepthFightingMenu(int id)
-    {
-        DepthFightingOn = id;
-
-        glutSetWindow(MainWindow);
-        glutPostRedisplay();
-    }
-
-    void DoDepthMenu(int id)
-    {
-        DepthCueOn = id;
-
-        glutSetWindow(MainWindow);
-        glutPostRedisplay();
-    }
-    void DoTexture(int id)
-    {
-        idTexture = id;
-        switch (id)
-        {
-        case 0:
-            Texture = Texture1;
-            isTexture = true;
-            break;
-        case 1:
-            Texture = Texture2;
-            isTexture = true;
-            break;
-        case 2:
-            Texture = Texture3;
-            isTexture = true;
-            break;
-        case 3:
-            isTexture = false;
-            break;
-        }
-    }
-
-    // main menu callback:
-
-    void DoMainMenu(int id)
-    {
-        switch (id)
-        {
-        case RESET:
-            Reset();
-            break;
-
-        case QUIT:
-            // gracefully close out the graphics:
-            // gracefully close the graphics window:
-            // gracefully exit the program:
-            glutSetWindow(MainWindow);
-            glFinish();
-            glutDestroyWindow(MainWindow);
-            exit(0);
-            break;
-
-        default:
-            fprintf(stderr, "Don't know what to do with Main Menu ID %d\n", id);
-        }
-
-        glutSetWindow(MainWindow);
-        glutPostRedisplay();
-    }
-
-    void DoProjectMenu(int id)
-    {
-        WhichProjection = id;
-
-        glutSetWindow(MainWindow);
-        glutPostRedisplay();
-    }
-
-    // use glut to display a string of characters using a raster font:
-
-    void DoRasterString(float x, float y, float z, char *s)
-    {
-        glRasterPos3f((GLfloat)x, (GLfloat)y, (GLfloat)z);
-
-        char c; // one character to print
-        for (; (c = *s) != '\0'; s++)
-        {
-            glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
-        }
-    }
-
-    // use glut to display a string of characters using a stroke font:
-
-    void DoStrokeString(float x, float y, float z, float ht, char *s)
+    if (DepthFightingOn != 0)
     {
         glPushMatrix();
-        glTranslatef((GLfloat)x, (GLfloat)y, (GLfloat)z);
-        float sf = ht / (119.05f + 33.33f);
-        glScalef((GLfloat)sf, (GLfloat)sf, (GLfloat)sf);
-        char c; // one character to print
-        for (; (c = *s) != '\0'; s++)
-        {
-            glutStrokeCharacter(GLUT_STROKE_ROMAN, c);
-        }
+        glRotatef(90., 0., 1., 0.);
+        glCallList(BoxList);
         glPopMatrix();
     }
 
-    // return the number of seconds since the start of the program:
+    // draw some gratuitous text that just rotates on top of the scene:
 
-    float ElapsedSeconds()
+    glDisable(GL_DEPTH_TEST);
+    glColor3f(1., 1., 1.);
+    DoRasterString(0., 1., 0., "");
+
+    // draw some gratuitous text that is fixed on the screen:
+    //
+    // the projection matrix is reset to define a scene whose
+    // world coordinate system goes from 0-100 in each axis
+    //
+    // this is called "percent units", and is just a convenience
+    //
+    // the modelview matrix is reset to identity as we don't
+    // want to transform these coordinates
+
+    glDisable(GL_DEPTH_TEST);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0., 100., 0., 100.);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glColor3f(1., 1., 1.);
+    DoRasterString(5., 5., 0., "Margaux Masson - Final Project - Water Simulation");
+
+    // swap the double-buffered framebuffers:
+
+    glutSwapBuffers();
+
+    // be sure the graphics buffer has been sent:
+    // note: be sure to use glFlush( ) here, not glFinish( ) !
+
+    glFlush();
+}
+
+void DoAxesMenu(int id)
+{
+    AxesOn = id;
+
+    glutSetWindow(MainWindow);
+    glutPostRedisplay();
+}
+
+void DoColorMenu(int id)
+{
+    WhichColor = id - RED;
+
+    glutSetWindow(MainWindow);
+    glutPostRedisplay();
+}
+
+void DoDebugMenu(int id)
+{
+    DebugOn = id;
+
+    glutSetWindow(MainWindow);
+    glutPostRedisplay();
+}
+
+void DoDepthBufferMenu(int id)
+{
+    DepthBufferOn = id;
+
+    glutSetWindow(MainWindow);
+    glutPostRedisplay();
+}
+
+void DoDepthFightingMenu(int id)
+{
+    DepthFightingOn = id;
+
+    glutSetWindow(MainWindow);
+    glutPostRedisplay();
+}
+
+void DoDepthMenu(int id)
+{
+    DepthCueOn = id;
+
+    glutSetWindow(MainWindow);
+    glutPostRedisplay();
+}
+void DoTexture(int id)
+{
+    idTexture = id;
+    switch (id)
     {
-        // get # of milliseconds since the start of the program:
+    case 0:
+        Texture = Texture1;
+        isTexture = true;
+        break;
+    case 1:
+        Texture = Texture2;
+        isTexture = true;
+        break;
+    case 2:
+        Texture = Texture3;
+        isTexture = true;
+        break;
+    case 3:
+        isTexture = false;
+        break;
+    }
+}
 
-        int ms = glutGet(GLUT_ELAPSED_TIME);
+// main menu callback:
 
-        // convert it to seconds:
+void DoMainMenu(int id)
+{
+    switch (id)
+    {
+    case RESET:
+        Reset();
+        break;
 
-        return (float)ms / 1000.f;
+    case QUIT:
+        // gracefully close out the graphics:
+        // gracefully close the graphics window:
+        // gracefully exit the program:
+        glutSetWindow(MainWindow);
+        glFinish();
+        glutDestroyWindow(MainWindow);
+        exit(0);
+        break;
+
+    default:
+        fprintf(stderr, "Don't know what to do with Main Menu ID %d\n", id);
     }
 
-    // initialize the glui window:
+    glutSetWindow(MainWindow);
+    glutPostRedisplay();
+}
 
-    void InitMenus()
+void DoProjectMenu(int id)
+{
+    WhichProjection = id;
+
+    glutSetWindow(MainWindow);
+    glutPostRedisplay();
+}
+
+// use glut to display a string of characters using a raster font:
+
+void DoRasterString(float x, float y, float z, char *s)
+{
+    glRasterPos3f((GLfloat)x, (GLfloat)y, (GLfloat)z);
+
+    char c; // one character to print
+    for (; (c = *s) != '\0'; s++)
     {
-        glutSetWindow(MainWindow);
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
+    }
+}
 
-        int numColors = sizeof(Colors) / (3 * sizeof(int));
-        int colormenu = glutCreateMenu(DoColorMenu);
-        for (int i = 0; i < numColors; i++)
-        {
-            glutAddMenuEntry(ColorNames[i], i);
-        }
+// use glut to display a string of characters using a stroke font:
 
-        int axesmenu = glutCreateMenu(DoAxesMenu);
-        glutAddMenuEntry("Off", 0);
-        glutAddMenuEntry("On", 1);
+void DoStrokeString(float x, float y, float z, float ht, char *s)
+{
+    glPushMatrix();
+    glTranslatef((GLfloat)x, (GLfloat)y, (GLfloat)z);
+    float sf = ht / (119.05f + 33.33f);
+    glScalef((GLfloat)sf, (GLfloat)sf, (GLfloat)sf);
+    char c; // one character to print
+    for (; (c = *s) != '\0'; s++)
+    {
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, c);
+    }
+    glPopMatrix();
+}
 
-        int depthcuemenu = glutCreateMenu(DoDepthMenu);
-        glutAddMenuEntry("Off", 0);
-        glutAddMenuEntry("On", 1);
+// return the number of seconds since the start of the program:
 
-        int depthbuffermenu = glutCreateMenu(DoDepthBufferMenu);
-        glutAddMenuEntry("Off", 0);
-        glutAddMenuEntry("On", 1);
+float ElapsedSeconds()
+{
+    // get # of milliseconds since the start of the program:
 
-        int depthfightingmenu = glutCreateMenu(DoDepthFightingMenu);
-        glutAddMenuEntry("Off", 0);
-        glutAddMenuEntry("On", 1);
+    int ms = glutGet(GLUT_ELAPSED_TIME);
 
-        int debugmenu = glutCreateMenu(DoDebugMenu);
-        glutAddMenuEntry("Off", 0);
-        glutAddMenuEntry("On", 1);
+    // convert it to seconds:
 
-        int projmenu = glutCreateMenu(DoProjectMenu);
-        glutAddMenuEntry("Orthographic", ORTHO);
-        glutAddMenuEntry("Perspective", PERSP);
+    return (float)ms / 1000.f;
+}
 
-        int texturemenu = glutCreateMenu(DoTexture);
-        glutAddMenuEntry("BlueWater", 0);
-        glutAddMenuEntry("DeepWater", 1);
-        glutAddMenuEntry("DarkWater", 2);
-        glutAddMenuEntry("No Texture", 3);
+// initialize the glui window:
 
-        int mainmenu = glutCreateMenu(DoMainMenu);
-        glutAddSubMenu("Texture", texturemenu);
-        glutAddSubMenu("Axes", axesmenu);
-        glutAddSubMenu("Colors", colormenu);
-        glutAddSubMenu("Depth Buffer", depthbuffermenu);
-        glutAddSubMenu("Depth Fighting", depthfightingmenu);
-        glutAddSubMenu("Depth Cue", depthcuemenu);
-        glutAddSubMenu("Projection", projmenu);
-        glutAddMenuEntry("Reset", RESET);
-        glutAddSubMenu("Debug", debugmenu);
-        glutAddMenuEntry("Quit", QUIT);
+void InitMenus()
+{
+    glutSetWindow(MainWindow);
 
-        // attach the pop-up menu to the right mouse button:
-
-        glutAttachMenu(GLUT_RIGHT_BUTTON);
+    int numColors = sizeof(Colors) / (3 * sizeof(int));
+    int colormenu = glutCreateMenu(DoColorMenu);
+    for (int i = 0; i < numColors; i++)
+    {
+        glutAddMenuEntry(ColorNames[i], i);
     }
 
-    // initialize the glut and OpenGL libraries:
-    //	also setup display lists and callback functions
+    int axesmenu = glutCreateMenu(DoAxesMenu);
+    glutAddMenuEntry("Off", 0);
+    glutAddMenuEntry("On", 1);
 
-    void InitGraphics()
-    {
-        // request the display modes:
-        // ask for red-green-blue-alpha color, double-buffering, and z-buffering:
+    int depthcuemenu = glutCreateMenu(DoDepthMenu);
+    glutAddMenuEntry("Off", 0);
+    glutAddMenuEntry("On", 1);
 
-        glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+    int depthbuffermenu = glutCreateMenu(DoDepthBufferMenu);
+    glutAddMenuEntry("Off", 0);
+    glutAddMenuEntry("On", 1);
 
-        // set the initial window configuration:
+    int depthfightingmenu = glutCreateMenu(DoDepthFightingMenu);
+    glutAddMenuEntry("Off", 0);
+    glutAddMenuEntry("On", 1);
 
-        glutInitWindowPosition(0, 0);
-        glutInitWindowSize(INIT_WINDOW_SIZE, INIT_WINDOW_SIZE);
+    int debugmenu = glutCreateMenu(DoDebugMenu);
+    glutAddMenuEntry("Off", 0);
+    glutAddMenuEntry("On", 1);
 
-        // open the window and set its title:
+    int projmenu = glutCreateMenu(DoProjectMenu);
+    glutAddMenuEntry("Orthographic", ORTHO);
+    glutAddMenuEntry("Perspective", PERSP);
 
-        MainWindow = glutCreateWindow(WINDOWTITLE);
-        glutSetWindowTitle(WINDOWTITLE);
+    int texturemenu = glutCreateMenu(DoTexture);
+    glutAddMenuEntry("BlueWater", 0);
+    glutAddMenuEntry("DeepWater", 1);
+    glutAddMenuEntry("DarkWater", 2);
+    glutAddMenuEntry("No Texture", 3);
 
-        // set the framebuffer clear values:
+    int mainmenu = glutCreateMenu(DoMainMenu);
+    glutAddSubMenu("Texture", texturemenu);
+    glutAddSubMenu("Axes", axesmenu);
+    glutAddSubMenu("Colors", colormenu);
+    glutAddSubMenu("Depth Buffer", depthbuffermenu);
+    glutAddSubMenu("Depth Fighting", depthfightingmenu);
+    glutAddSubMenu("Depth Cue", depthcuemenu);
+    glutAddSubMenu("Projection", projmenu);
+    glutAddMenuEntry("Reset", RESET);
+    glutAddSubMenu("Debug", debugmenu);
+    glutAddMenuEntry("Quit", QUIT);
 
-        glClearColor(BACKCOLOR[0], BACKCOLOR[1], BACKCOLOR[2], BACKCOLOR[3]);
+    // attach the pop-up menu to the right mouse button:
 
-        // setup the callback functions:
-        // DisplayFunc -- redraw the window
-        // ReshapeFunc -- handle the user resizing the window
-        // KeyboardFunc -- handle a keyboard input
-        // MouseFunc -- handle the mouse button going down or up
-        // MotionFunc -- handle the mouse moving with a button down
-        // PassiveMotionFunc -- handle the mouse moving with a button up
-        // VisibilityFunc -- handle a change in window visibility
-        // EntryFunc	-- handle the cursor entering or leaving the window
-        // SpecialFunc -- handle special keys on the keyboard
-        // SpaceballMotionFunc -- handle spaceball translation
-        // SpaceballRotateFunc -- handle spaceball rotation
-        // SpaceballButtonFunc -- handle spaceball button hits
-        // ButtonBoxFunc -- handle button box hits
-        // DialsFunc -- handle dial rotations
-        // TabletMotionFunc -- handle digitizing tablet motion
-        // TabletButtonFunc -- handle digitizing tablet button hits
-        // MenuStateFunc -- declare when a pop-up menu is in use
-        // TimerFunc -- trigger something to happen a certain time from now
-        // IdleFunc -- what to do when nothing else is going on
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
 
-        glutSetWindow(MainWindow);
-        glutDisplayFunc(Display);
-        glutReshapeFunc(Resize);
-        glutKeyboardFunc(Keyboard);
-        glutMouseFunc(MouseButton);
-        glutMotionFunc(MouseMotion);
-        glutPassiveMotionFunc(NULL);
-        glutVisibilityFunc(Visibility);
-        glutEntryFunc(NULL);
-        glutSpecialFunc(NULL);
-        glutSpaceballMotionFunc(NULL);
-        glutSpaceballRotateFunc(NULL);
-        glutSpaceballButtonFunc(NULL);
-        glutButtonBoxFunc(NULL);
-        glutDialsFunc(NULL);
-        glutTabletMotionFunc(NULL);
-        glutTabletButtonFunc(NULL);
-        glutMenuStateFunc(NULL);
-        glutTimerFunc(-1, NULL, 0);
-        glutIdleFunc(NULL);
+// initialize the glut and OpenGL libraries:
+//	also setup display lists and callback functions
 
-        InitNoise();
-        int width = 1024;
-        int height = 512;
-        /* Texture loading  */
-        glGenTextures(1, &tex);
-        load_texture("alpha.jpg", alpha_texture, GL_ALPHA, 256);
-        load_texture("reflection.jpg", water_texture, GL_RGB, 256);
-        load_texture("reflection2.jpg", water_texture2, GL_RGB, 256);
-        load_texture("reflection3.jpg", water_texture3, GL_RGB, 256);
-        load_texture("grass.jpg", grass_texture, GL_RGB, 256);
+void InitGraphics()
+{
+    // request the display modes:
+    // ask for red-green-blue-alpha color, double-buffering, and z-buffering:
 
-        // unsigned char *grass_texture = BmpToTexture("mars.bmp", &width, &height);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 
-        // init glew (a window must be open to do this):
+    // set the initial window configuration:
+
+    glutInitWindowPosition(0, 0);
+    glutInitWindowSize(INIT_WINDOW_SIZE, INIT_WINDOW_SIZE);
+
+    // open the window and set its title:
+
+    MainWindow = glutCreateWindow(WINDOWTITLE);
+    glutSetWindowTitle(WINDOWTITLE);
+
+    // set the framebuffer clear values:
+
+    glClearColor(BACKCOLOR[0], BACKCOLOR[1], BACKCOLOR[2], BACKCOLOR[3]);
+
+    // setup the callback functions:
+    // DisplayFunc -- redraw the window
+    // ReshapeFunc -- handle the user resizing the window
+    // KeyboardFunc -- handle a keyboard input
+    // MouseFunc -- handle the mouse button going down or up
+    // MotionFunc -- handle the mouse moving with a button down
+    // PassiveMotionFunc -- handle the mouse moving with a button up
+    // VisibilityFunc -- handle a change in window visibility
+    // EntryFunc	-- handle the cursor entering or leaving the window
+    // SpecialFunc -- handle special keys on the keyboard
+    // SpaceballMotionFunc -- handle spaceball translation
+    // SpaceballRotateFunc -- handle spaceball rotation
+    // SpaceballButtonFunc -- handle spaceball button hits
+    // ButtonBoxFunc -- handle button box hits
+    // DialsFunc -- handle dial rotations
+    // TabletMotionFunc -- handle digitizing tablet motion
+    // TabletButtonFunc -- handle digitizing tablet button hits
+    // MenuStateFunc -- declare when a pop-up menu is in use
+    // TimerFunc -- trigger something to happen a certain time from now
+    // IdleFunc -- what to do when nothing else is going on
+
+    glutSetWindow(MainWindow);
+    glutDisplayFunc(Display);
+    glutReshapeFunc(Resize);
+    glutKeyboardFunc(Keyboard);
+    glutMouseFunc(MouseButton);
+    glutMotionFunc(MouseMotion);
+    glutPassiveMotionFunc(NULL);
+    glutVisibilityFunc(Visibility);
+    glutEntryFunc(NULL);
+    glutSpecialFunc(NULL);
+    glutSpaceballMotionFunc(NULL);
+    glutSpaceballRotateFunc(NULL);
+    glutSpaceballButtonFunc(NULL);
+    glutButtonBoxFunc(NULL);
+    glutDialsFunc(NULL);
+    glutTabletMotionFunc(NULL);
+    glutTabletButtonFunc(NULL);
+    glutMenuStateFunc(NULL);
+    glutTimerFunc(-1, NULL, 0);
+    glutIdleFunc(NULL);
+
+    InitNoise();
+    int width = 1024;
+    int height = 512;
+    /* Texture loading  */
+    glGenTextures(1, &tex);
+    load_texture("alpha.jpg", alpha_texture, GL_ALPHA, 256);
+    load_texture("reflection.jpg", water_texture, GL_RGB, 256);
+    load_texture("reflection2.jpg", water_texture2, GL_RGB, 256);
+    load_texture("reflection3.jpg", water_texture3, GL_RGB, 256);
+    load_texture("grass.jpg", grass_texture, GL_RGB, 256);
+
+    // unsigned char *grass_texture = BmpToTexture("mars.bmp", &width, &height);
+
+    // init glew (a window must be open to do this):
 
 #ifdef WIN32
-        GLenum err = glewInit();
-        if (err != GLEW_OK)
-        {
-            fprintf(stderr, "glewInit Error\n");
-        }
-        else
-            fprintf(stderr, "GLEW initialized OK\n");
-        fprintf(stderr, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+    GLenum err = glewInit();
+    if (err != GLEW_OK)
+    {
+        fprintf(stderr, "glewInit Error\n");
+    }
+    else
+        fprintf(stderr, "GLEW initialized OK\n");
+    fprintf(stderr, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 #endif
-    }
+}
 
-    // initialize the display lists that will not change:
-    // (a display list is a way to store opengl commands in
-    //  memory so that they can be played back efficiently at a later time
-    //  with a call to glCallList( )
+// initialize the display lists that will not change:
+// (a display list is a way to store opengl commands in
+//  memory so that they can be played back efficiently at a later time
+//  with a call to glCallList( )
 
-    void InitLists()
+void InitLists()
+{
+    // create the axes:
+    // AxesList = glGenLists(1);
+    // glNewList(AxesList, GL_COMPILE);
+    // glLineWidth(AXES_WIDTH);
+    // Axes(1.5);
+    // glLineWidth(1.);
+    // glEndList();
+}
+
+// the keyboard callback:
+
+void Keyboard(unsigned char c, int x, int y)
+{
+    if (DebugOn != 0)
+        fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
+
+    switch (c)
     {
-        // create the axes:
-        // AxesList = glGenLists(1);
-        // glNewList(AxesList, GL_COMPILE);
-        // glLineWidth(AXES_WIDTH);
-        // Axes(1.5);
-        // glLineWidth(1.);
-        // glEndList();
-    }
-
-    // the keyboard callback:
-
-    void Keyboard(unsigned char c, int x, int y)
-    {
-        if (DebugOn != 0)
-            fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
-
-        switch (c)
-        {
-        case 'o':
-        case 'O':
-            WhichProjection = ORTHO;
-            break;
-        case 'f':
-        case 'F':
-            Frozen = !Frozen;
-            break;
-        // case 'w':
-        // case 'W':
-        //     wire_frame = 0;
-        //     break;
-        case 'l':
-        case 'L':
-            wire_frame = 1;
-            break;
-        case 'n':
-        case 'N':
-            if (0 == normals)
-                normals = 1;
-            else
-                normals = 0;
-            break;
-        case 'p':
-        case 'P':
-            WhichProjection = PERSP;
-            break;
-        case 't':
-        case 'T':
-            if (idTexture < 3)
-            {
-                DoTexture(idTexture + 1);
-            }
-            else
-            {
-                DoTexture(0);
-                idTexture = 0;
-            }
-            break;
-        case '+':
-            grass_height = grass_height + 1;
-            // waves_intensity = waves_intensity + 1;
-            break;
-        case '-':
-            // if (waves_intensity > 0)
-            if (grass_height > 0)
-            {
-                grass_height = grass_height - 1;
-                // waves_intensity = waves_intensity - 1;
-            }
-            break;
-        case 'd':
-            waves_direction = !waves_direction;
-            break;
-        case 'w':
-            no_waves = !no_waves;
-            break;
-        case 'a':
-            field = !field;
-            break;
-        case '0':
-            only_water = !only_water;
-            break;
-        case 'q':
-        case 'Q':
-        case ESCAPE:
-            DoMainMenu(QUIT); // will not return here
-            break;            // happy compiler
-
-        default:
-            fprintf(stderr, "Don't know what to do with keyboard hit: '%c' (0x%0x)\n", c, c);
-        }
-
-        // force a call to Display( ):
-
-        glutSetWindow(MainWindow);
-        glutPostRedisplay();
-    }
-
-    // called when the mouse button transitions down or up:
-
-    void MouseButton(int button, int state, int x, int y)
-    {
-        int b = 0; // LEFT, MIDDLE, or RIGHT
-
-        if (DebugOn != 0)
-            fprintf(stderr, "MouseButton: %d, %d, %d, %d\n", button, state, x, y);
-
-        // get the proper button bit mask:
-
-        switch (button)
-        {
-        case GLUT_LEFT_BUTTON:
-            b = LEFT;
-            break;
-
-        case GLUT_MIDDLE_BUTTON:
-            b = MIDDLE;
-            break;
-
-        case GLUT_RIGHT_BUTTON:
-            b = RIGHT;
-            break;
-
-        default:
-            b = 0;
-            fprintf(stderr, "Unknown mouse button: %d\n", button);
-        }
-
-        // button down sets the bit, up clears the bit:
-
-        if (state == GLUT_DOWN)
-        {
-            Xmouse = x;
-            Ymouse = y;
-            ActiveButton |= b; // set the proper bit
-        }
+    case 'o':
+    case 'O':
+        WhichProjection = ORTHO;
+        break;
+    case 'f':
+    case 'F':
+        Frozen = !Frozen;
+        break;
+    // case 'w':
+    // case 'W':
+    //     wire_frame = 0;
+    //     break;
+    case 'l':
+    case 'L':
+        wire_frame = 1;
+        break;
+    case 'n':
+    case 'N':
+        if (0 == normals)
+            normals = 1;
         else
-        {
-            ActiveButton &= ~b; // clear the proper bit
-        }
-    }
-
-    // called when the mouse moves while a button is down:
-
-    void MouseMotion(int x, int y)
-    {
-        if (DebugOn != 0)
-            fprintf(stderr, "MouseMotion: %d, %d\n", x, y);
-
-        int dx = x - Xmouse; // change in mouse coords
-        int dy = y - Ymouse;
-
-        if ((ActiveButton & LEFT) != 0)
-        {
-            Xrot += (ANGFACT * dy);
-            Yrot += (ANGFACT * dx);
-        }
-
-        if ((ActiveButton & MIDDLE) != 0)
-        {
-            Scale += SCLFACT * (float)(dx - dy);
-
-            // keep object from turning inside-out or disappearing:
-
-            if (Scale < MINSCALE)
-                Scale = MINSCALE;
-        }
-
-        Xmouse = x; // new current position
-        Ymouse = y;
-
-        glutSetWindow(MainWindow);
-        glutPostRedisplay();
-    }
-
-    // reset the transformations and the colors:
-    // this only sets the global variables --
-    // the glut main loop is responsible for redrawing the scene
-
-    void Reset()
-    {
-        ActiveButton = 0;
-        AxesOn = 1;
-        DebugOn = 0;
-        DepthBufferOn = 1;
-        DepthFightingOn = 0;
-        DepthCueOn = 0;
-        Scale = 1.0;
-        WhichColor = WHITE;
+            normals = 0;
+        break;
+    case 'p':
+    case 'P':
         WhichProjection = PERSP;
-        Xrot = Yrot = 0.;
-    }
-
-    // called when user resizes the window:
-
-    void Resize(int width, int height)
-    {
-        if (DebugOn != 0)
-            fprintf(stderr, "ReSize: %d, %d\n", width, height);
-
-        // don't really need to do anything since window size is
-        // checked each time in Display( ):
-
-        glutSetWindow(MainWindow);
-        glutPostRedisplay();
-    }
-
-    // handle a change to the window's visibility:
-
-    void Visibility(int state)
-    {
-        if (DebugOn != 0)
-            fprintf(stderr, "Visibility: %d\n", state);
-
-        if (state == GLUT_VISIBLE)
+        break;
+    case 't':
+    case 'T':
+        if (idTexture < 3)
         {
-            glutSetWindow(MainWindow);
-            glutPostRedisplay();
+            DoTexture(idTexture + 1);
         }
         else
         {
-            // could optimize by keeping track of the fact
-            // that the window is not visible and avoid
-            // animating or redrawing it ...
+            DoTexture(0);
+            idTexture = 0;
         }
+        break;
+    case '+':
+        grass_height = grass_height + 1;
+        // waves_intensity = waves_intensity + 1;
+        break;
+    case '-':
+        // if (waves_intensity > 0)
+        if (grass_height > 0)
+        {
+            grass_height = grass_height - 1;
+            // waves_intensity = waves_intensity - 1;
+        }
+        break;
+    case 'd':
+        waves_direction = !waves_direction;
+        break;
+    case 'w':
+        no_waves = !no_waves;
+        break;
+    case 'a':
+        field = !field;
+        break;
+    case '0':
+        only_water = !only_water;
+        break;
+    case 'q':
+    case 'Q':
+    case ESCAPE:
+        DoMainMenu(QUIT); // will not return here
+        break;            // happy compiler
+
+    default:
+        fprintf(stderr, "Don't know what to do with keyboard hit: '%c' (0x%0x)\n", c, c);
     }
 
-    ///////////////////////////////////////   HANDY UTILITIES:  //////////////////////////
+    // force a call to Display( ):
 
-    // the stroke characters 'X' 'Y' 'Z' :
+    glutSetWindow(MainWindow);
+    glutPostRedisplay();
+}
 
-    static float xx[] = {
-        0.f, 1.f, 0.f, 1.f};
+// called when the mouse button transitions down or up:
 
-    static float xy[] = {
-        -.5f, .5f, .5f, -.5f};
+void MouseButton(int button, int state, int x, int y)
+{
+    int b = 0; // LEFT, MIDDLE, or RIGHT
 
-    static int xorder[] = {
-        1, 2, -3, 4};
+    if (DebugOn != 0)
+        fprintf(stderr, "MouseButton: %d, %d, %d, %d\n", button, state, x, y);
 
-    static float yx[] = {
-        0.f, 0.f, -.5f, .5f};
+    // get the proper button bit mask:
 
-    static float yy[] = {
-        0.f, .6f, 1.f, 1.f};
-
-    static int yorder[] = {
-        1, 2, 3, -2, 4};
-
-    static float zx[] = {
-        1.f, 0.f, 1.f, 0.f, .25f, .75f};
-
-    static float zy[] = {
-        .5f, .5f, -.5f, -.5f, 0.f, 0.f};
-
-    static int zorder[] = {
-        1, 2, 3, 4, -5, 6};
-
-    // fraction of the length to use as height of the characters:
-    const float LENFRAC = 0.10f;
-
-    // fraction of length to use as start location of the characters:
-    const float BASEFRAC = 1.10f;
-
-    //	Draw a set of 3D axes:
-    //	(length is the axis length in world coordinates)
-
-    void Axes(float length)
+    switch (button)
     {
-        glBegin(GL_LINE_STRIP);
-        glVertex3f(length, 0., 0.);
-        glVertex3f(0., 0., 0.);
-        glVertex3f(0., length, 0.);
-        glEnd();
-        glBegin(GL_LINE_STRIP);
-        glVertex3f(0., 0., 0.);
-        glVertex3f(0., 0., length);
-        glEnd();
+    case GLUT_LEFT_BUTTON:
+        b = LEFT;
+        break;
 
-        float fact = LENFRAC * length;
-        float base = BASEFRAC * length;
+    case GLUT_MIDDLE_BUTTON:
+        b = MIDDLE;
+        break;
 
-        glBegin(GL_LINE_STRIP);
-        for (int i = 0; i < 4; i++)
-        {
-            int j = xorder[i];
-            if (j < 0)
-            {
+    case GLUT_RIGHT_BUTTON:
+        b = RIGHT;
+        break;
 
-                glEnd();
-                glBegin(GL_LINE_STRIP);
-                j = -j;
-            }
-            j--;
-            glVertex3f(base + fact * xx[j], fact * xy[j], 0.0);
-        }
-        glEnd();
-
-        glBegin(GL_LINE_STRIP);
-        for (int i = 0; i < 5; i++)
-        {
-            int j = yorder[i];
-            if (j < 0)
-            {
-
-                glEnd();
-                glBegin(GL_LINE_STRIP);
-                j = -j;
-            }
-            j--;
-            glVertex3f(fact * yx[j], base + fact * yy[j], 0.0);
-        }
-        glEnd();
-
-        glBegin(GL_LINE_STRIP);
-        for (int i = 0; i < 6; i++)
-        {
-            int j = zorder[i];
-            if (j < 0)
-            {
-
-                glEnd();
-                glBegin(GL_LINE_STRIP);
-                j = -j;
-            }
-            j--;
-            glVertex3f(0.0, fact * zy[j], base + fact * zx[j]);
-        }
-        glEnd();
+    default:
+        b = 0;
+        fprintf(stderr, "Unknown mouse button: %d\n", button);
     }
+
+    // button down sets the bit, up clears the bit:
+
+    if (state == GLUT_DOWN)
+    {
+        Xmouse = x;
+        Ymouse = y;
+        ActiveButton |= b; // set the proper bit
+    }
+    else
+    {
+        ActiveButton &= ~b; // clear the proper bit
+    }
+}
+
+// called when the mouse moves while a button is down:
+
+void MouseMotion(int x, int y)
+{
+    if (DebugOn != 0)
+        fprintf(stderr, "MouseMotion: %d, %d\n", x, y);
+
+    int dx = x - Xmouse; // change in mouse coords
+    int dy = y - Ymouse;
+
+    if ((ActiveButton & LEFT) != 0)
+    {
+        Xrot += (ANGFACT * dy);
+        Yrot += (ANGFACT * dx);
+    }
+
+    if ((ActiveButton & MIDDLE) != 0)
+    {
+        Scale += SCLFACT * (float)(dx - dy);
+
+        // keep object from turning inside-out or disappearing:
+
+        if (Scale < MINSCALE)
+            Scale = MINSCALE;
+    }
+
+    Xmouse = x; // new current position
+    Ymouse = y;
+
+    glutSetWindow(MainWindow);
+    glutPostRedisplay();
+}
+
+// reset the transformations and the colors:
+// this only sets the global variables --
+// the glut main loop is responsible for redrawing the scene
+
+void Reset()
+{
+    ActiveButton = 0;
+    AxesOn = 1;
+    DebugOn = 0;
+    DepthBufferOn = 1;
+    DepthFightingOn = 0;
+    DepthCueOn = 0;
+    Scale = 1.0;
+    WhichColor = WHITE;
+    WhichProjection = PERSP;
+    Xrot = Yrot = 0.;
+}
+
+// called when user resizes the window:
+
+void Resize(int width, int height)
+{
+    if (DebugOn != 0)
+        fprintf(stderr, "ReSize: %d, %d\n", width, height);
+
+    // don't really need to do anything since window size is
+    // checked each time in Display( ):
+
+    glutSetWindow(MainWindow);
+    glutPostRedisplay();
+}
+
+// handle a change to the window's visibility:
+
+void Visibility(int state)
+{
+    if (DebugOn != 0)
+        fprintf(stderr, "Visibility: %d\n", state);
+
+    if (state == GLUT_VISIBLE)
+    {
+        glutSetWindow(MainWindow);
+        glutPostRedisplay();
+    }
+    else
+    {
+        // could optimize by keeping track of the fact
+        // that the window is not visible and avoid
+        // animating or redrawing it ...
+    }
+}
+
+///////////////////////////////////////   HANDY UTILITIES:  //////////////////////////
+
+// the stroke characters 'X' 'Y' 'Z' :
+
+static float xx[] = {
+    0.f, 1.f, 0.f, 1.f};
+
+static float xy[] = {
+    -.5f, .5f, .5f, -.5f};
+
+static int xorder[] = {
+    1, 2, -3, 4};
+
+static float yx[] = {
+    0.f, 0.f, -.5f, .5f};
+
+static float yy[] = {
+    0.f, .6f, 1.f, 1.f};
+
+static int yorder[] = {
+    1, 2, 3, -2, 4};
+
+static float zx[] = {
+    1.f, 0.f, 1.f, 0.f, .25f, .75f};
+
+static float zy[] = {
+    .5f, .5f, -.5f, -.5f, 0.f, 0.f};
+
+static int zorder[] = {
+    1, 2, 3, 4, -5, 6};
+
+// fraction of the length to use as height of the characters:
+const float LENFRAC = 0.10f;
+
+// fraction of length to use as start location of the characters:
+const float BASEFRAC = 1.10f;
+
+//	Draw a set of 3D axes:
+//	(length is the axis length in world coordinates)
+
+void Axes(float length)
+{
+    glBegin(GL_LINE_STRIP);
+    glVertex3f(length, 0., 0.);
+    glVertex3f(0., 0., 0.);
+    glVertex3f(0., length, 0.);
+    glEnd();
+    glBegin(GL_LINE_STRIP);
+    glVertex3f(0., 0., 0.);
+    glVertex3f(0., 0., length);
+    glEnd();
+
+    float fact = LENFRAC * length;
+    float base = BASEFRAC * length;
+
+    glBegin(GL_LINE_STRIP);
+    for (int i = 0; i < 4; i++)
+    {
+        int j = xorder[i];
+        if (j < 0)
+        {
+
+            glEnd();
+            glBegin(GL_LINE_STRIP);
+            j = -j;
+        }
+        j--;
+        glVertex3f(base + fact * xx[j], fact * xy[j], 0.0);
+    }
+    glEnd();
+
+    glBegin(GL_LINE_STRIP);
+    for (int i = 0; i < 5; i++)
+    {
+        int j = yorder[i];
+        if (j < 0)
+        {
+
+            glEnd();
+            glBegin(GL_LINE_STRIP);
+            j = -j;
+        }
+        j--;
+        glVertex3f(fact * yx[j], base + fact * yy[j], 0.0);
+    }
+    glEnd();
+
+    glBegin(GL_LINE_STRIP);
+    for (int i = 0; i < 6; i++)
+    {
+        int j = zorder[i];
+        if (j < 0)
+        {
+
+            glEnd();
+            glBegin(GL_LINE_STRIP);
+            j = -j;
+        }
+        j--;
+        glVertex3f(0.0, fact * zy[j], base + fact * zx[j]);
+    }
+    glEnd();
+}
