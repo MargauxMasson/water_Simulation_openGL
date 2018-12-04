@@ -658,7 +658,7 @@ void Display()
     glLoadIdentity();
 
     // set the eye position, look-at position, and up-vector:
-    gluLookAt(2, 2, 0, 0., 0., 0., 0., 1., 0.);
+    gluLookAt(3, 2, 0, 0., 0., 0., 0., 1., 0.);
 
     // rotate the scene:
 
@@ -719,9 +719,10 @@ void Display()
         glEnd();
     }
 
-    glRotatef(angleZ, 0, 0, 1);
+    glRotatef(-angleZ, 0, 0, 1);
     glRotatef(angleY, 0, 1, 0);
     glRotatef(angleX, 1, 0, 0);
+    glTranslatef(0, 1, 0);
 
     /// Water ///
     if (isTexture)
