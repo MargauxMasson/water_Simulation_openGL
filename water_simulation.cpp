@@ -21,6 +21,9 @@
 
 #include "noise.cpp"
 float Time;
+float angleX = 0;
+float angleY = 0;
+float angleZ = 0;
 float waves_intensity = 10;
 bool no_waves = false;
 bool waves_direction = true;
@@ -716,6 +719,10 @@ void Display()
         glEnd();
     }
 
+    glRotatef(angleZ, 0, 0, 1);
+    glRotatef(angleY, 0, 1, 0);
+    glRotatef(angleX, 1, 0, 0);
+
     /// Water ///
     if (isTexture)
     {
@@ -1281,6 +1288,15 @@ void Keyboard(unsigned char c, int x, int y)
         break;
     case 'd':
         waves_direction = !waves_direction;
+        break;
+    case 'x':
+        angleX = angleX + 5;
+        break;
+    case 'y':
+        angleY = angleY + 5;
+        break;
+    case 'z':
+        angleZ = angleZ + 5;
         break;
     case 'w':
         no_waves = !no_waves;
