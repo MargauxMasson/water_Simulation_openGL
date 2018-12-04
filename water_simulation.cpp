@@ -16,7 +16,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "glut.h"
-#include "bmptotexture.cpp"
 #include "loadobjfile.cpp"
 
 #include "noise.cpp"
@@ -747,13 +746,10 @@ void Display()
     if (!field && !only_water)
     {
         // transparency
-        // glDisable(GL_TEXTURE_2D);
-        // glColor3f(0,0,0.5);
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
 
         glTranslatef(0, -2, 0);
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glBegin(GL_TRIANGLE_FAN);
         glVertex3f(-1, 0, -1);
         glVertex3f(-1, 0, 1);
@@ -1193,9 +1189,6 @@ void InitGraphics()
     load_texture("reflection.jpg", water_texture, GL_RGB, 256);
     load_texture("reflection2.jpg", water_texture2, GL_RGB, 256);
     load_texture("reflection3.jpg", water_texture3, GL_RGB, 256);
-    load_texture("grass.jpg", grass_texture, GL_RGB, 256);
-
-    // unsigned char *grass_texture = BmpToTexture("mars.bmp", &width, &height);
 
     // init glew (a window must be open to do this):
 
