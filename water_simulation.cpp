@@ -159,7 +159,7 @@ int height = 512;
 bool isTexture = true;
 int idTexture = 0;
 bool Frozen = false;
-float grass_height = 1;
+float grass_height = 5;
 unsigned char total_texture[4 * 256 * 256];
 unsigned char alpha_texture[256 * 256];
 unsigned char water_texture[3 * 256 * 256];
@@ -184,7 +184,7 @@ static float normal[6 * resolution * (resolution + 1)];
 
 const float t = glutGet(GLUT_ELAPSED_TIME) / 1000.;
 const float delta = 2. / resolution;
-const float delta2 = 10. / resolution2;
+const float delta2 = 8. / resolution2;
 const unsigned int length = 2 * (resolution + 1);
 const unsigned int length2 = 2 * (resolution2 + 1);
 const float xn = (resolution + 1) * delta + 1;
@@ -237,7 +237,7 @@ static float field_creation(const float x, const float y)
     // const float y2 = y - 200;
     // const float xx = x2 * x2;
     // const float yy = y2 * y2;
-    return (10*Noise(x, y, 0, 0) / 200)*grass_height;
+    return (10*Noise(x, y, 0, 0) / 1000)*grass_height;
 }
 
 /*
@@ -745,7 +745,7 @@ void Display()
     glEnd();
 
     ////////// FIELD //////////
-    // glDisable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_2D);
 
     // GLuint tex2;
     // // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -764,27 +764,27 @@ void Display()
     // glTexImage2D(GL_TEXTURE_2D, 0, 3, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, Texture);
 
     glDisableClientState(GL_NORMAL_ARRAY);
-    glEnable(GL_NORMALIZE);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    GLuint tex2;
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glGenTextures(1, &tex2);
+    // glEnable(GL_NORMALIZE);
+    // glEnableClientState(GL_VERTEX_ARRAY);
+    // GLuint tex2;
+    // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    // glGenTextures(1, &tex2);
 
-    glBindTexture(GL_TEXTURE_2D, tex2); // make tex texture current
+    // glBindTexture(GL_TEXTURE_2D, tex2); // make tex texture current
     // and set its parameters
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     // glTexImage2D(GL_TEXTURE_2D, 0, 3, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, grass_texture);
 
     // // glBindTexture(GL_TEXTURE_2D, tex2);
     // gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, 256, 256, GL_RGB,
     //                   GL_NONE, water_texture);
-    glTranslatef(-5, -0.5, -4);
-    glColor3f(0, 0.2, 0);
+    glTranslatef(-5, 0, -3);
+    glColor3f(0, 0.5, 0);
 
     glVertexPointer(3, GL_FLOAT, 0, surface_field);
     for (int i = 0; i < resolution2; i++)
