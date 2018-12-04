@@ -21,6 +21,9 @@
 
 #include "noise.cpp"
 float Time;
+float waves_intensity = 10;
+bool no_waves = false;
+bool waves_direction = true;
 #define resolution 200
 #define resolution2 200
 // int resolution = 100;
@@ -228,14 +231,32 @@ static float waves_creation(const float x, const float y, const float t)
     const float y2 = y + 1;
     const float xx = x2 * x2;
     const float yy = y2 * y2;
-    return ((2 * sinf(20 * sqrtf(xx + yy) - 4 * t) + Noise(10 * x, 10 * y, t, 0)) /
-            200);
+    float time;
+    if (waves_direction)
+    {
+        time = -t;
+    }
+    else
+    {
+        time = t;
+    }
+
+    if (no_waves)
+    {
+        return ((2 * cosf(20 * sqrtf(xx + yy) - 4 * t) * waves_intensity / 100 + Noise(waves_intensity * x, waves_intensity * y, time, 0)) /
+                200);
+    }
+    else
+    {
+        return ((2 * cosf(20 * sqrtf(xx + yy) - 4 * t) + Noise(waves_intensity * x, waves_intensity * y, time, 0)) /
+                200);
+    }
 }
 
 static float field_creation(const float x, const float y)
 {
     // return (10 * Noise(x, y, 0, 0) / 1000) * grass_height;
-    return (10 * Noise(20*x, 20*y, 0, 0) / 1000) * grass_height;
+    return (10 * Noise(20 * x, 20 * y, 0, 0) / 1000) * grass_height;
 }
 
 /*
@@ -840,7 +861,6 @@ void Display()
     //     glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
     // glEnd();
 
-
     glTranslatef(2, 0, 0);
     glColor3f(0, 0.8, 0);
 
@@ -891,7 +911,6 @@ void Display()
     for (int i = 0; i < resolution2; i++)
         glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
     glEnd();
-
 
     glFlush();
     glutPostRedisplay();
@@ -1280,10 +1299,10 @@ void Keyboard(unsigned char c, int x, int y)
     case 'F':
         Frozen = !Frozen;
         break;
-    case 'w':
-    case 'W':
-        wire_frame = 0;
-        break;
+    // case 'w':
+    // case 'W':
+    //     wire_frame = 0;
+    //     break;
     case 'l':
     case 'L':
         wire_frame = 1;
@@ -1312,13 +1331,22 @@ void Keyboard(unsigned char c, int x, int y)
         }
         break;
     case '+':
-        grass_height = grass_height + 1;
+        // grass_height = grass_height + 1;
+        waves_intensity = waves_intensity + 1;
         break;
     case '-':
-        if (grass_height > 0)
+        if (waves_intensity > 0)
+        // if (grass_height > 0)
         {
-            grass_height = grass_height - 1;
+            // grass_height = grass_height - 1;
+            waves_intensity = waves_intensity - 1;
         }
+        break;
+    case 'd':
+        waves_direction = !waves_direction;
+        break;
+    case 'w':
+        no_waves = !no_waves;
         break;
     case 'q':
     case 'Q':
