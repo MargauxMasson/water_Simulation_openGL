@@ -19,13 +19,12 @@
 #include "loadobjfile.cpp"
 
 #include "noise.cpp"
-float Time;
+
 float angleX = 0;
 float angleY = 0;
 float angleZ = 0;
 float waves_intensity = 10;
 bool no_waves = false;
-bool waves_direction = true;
 bool field = false;
 bool only_water = false;
 #define resolution 100
@@ -159,8 +158,6 @@ int WhichProjection; // ORTHO or PERSP
 int Xmouse, Ymouse;  // mouse values
 float Xrot, Yrot;    // rotation angles in degrees
 
-int width = 1024;
-int height = 512;
 bool isTexture = true;
 int idTexture = 0;
 bool Frozen = false;
@@ -170,7 +167,6 @@ unsigned char alpha_texture[256 * 256];
 unsigned char water_texture[3 * 256 * 256];
 unsigned char water_texture2[3 * 256 * 256];
 unsigned char water_texture3[3 * 256 * 256];
-unsigned char grass_texture[3 * 256 * 256];
 
 unsigned char *Texture1 = water_texture;
 unsigned char *Texture2 = water_texture2;
@@ -190,9 +186,7 @@ static float normal[6 * resolution * (resolution + 1)];
 
 const float t = glutGet(GLUT_ELAPSED_TIME) / 1000.;
 const float delta = 2. / resolution;
-// const float delta2 = 2. / resolution;
 const unsigned int length = 2 * (resolution + 1);
-const unsigned int length2 = 2 * (resolution + 1);
 const float xn = (resolution + 1) * delta + 1;
 unsigned int i;
 unsigned int j;
@@ -699,7 +693,33 @@ void Display()
         glEnable(GL_TEXTURE_2D);
     }
 
-    //// Draw normals ////
+    // glTranslatef(0, 1, 0);
+
+    glTranslatef(0, 1, 0);
+    glRotatef(-angleZ, 0, 0, 1);
+    glRotatef(angleY, 0, 1, 0);
+    glRotatef(angleX, 1, 0, 0);
+
+    /// Water ///
+    if (isTexture)
+    {
+        glEnable(GL_TEXTURE_2D);
+    }
+    else
+    {
+        glDisable(GL_TEXTURE_2D);
+    }
+    glColor3f(1, 1, 1);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glNormalPointer(GL_FLOAT, 0, normal);
+    glVertexPointer(3, GL_FLOAT, 0, surface);
+    for (int i = 0; i < resolution; i++)
+        glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
+
+    glEnd();
+
+    //// Normals ////
     if (normals != 0)
     {
         glDisable(GL_TEXTURE_2D);
@@ -717,30 +737,6 @@ void Display()
 
         glEnd();
     }
-
-    glRotatef(-angleZ, 0, 0, 1);
-    glRotatef(angleY, 0, 1, 0);
-    glRotatef(angleX, 1, 0, 0);
-    glTranslatef(0, 1, 0);
-
-    /// Water ///
-    if (isTexture)
-    {
-        glEnable(GL_TEXTURE_2D);
-    }
-    else
-    {
-        glDisable(GL_TEXTURE_2D);
-    }
-    glColor3f(1, 1, 1);
-    glEnableClientState(GL_NORMAL_ARRAY);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glNormalPointer(GL_FLOAT, 0, normal);
-    glVertexPointer(3, GL_FLOAT, 0, surface);
-    for (int i = 0; i < resolution; i++)
-        glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
-
-    glEnd();
 
     //////// Walls ////////////
     if (!field && !only_water)
@@ -807,49 +803,49 @@ void Display()
         glEnableClientState(GL_VERTEX_ARRAY);
         glVertexPointer(3, GL_FLOAT, 0, surface_field);
         for (int i = 0; i < resolution; i++)
-            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
         glEnd();
         glTranslatef(0, 0, 2);
         glVertexPointer(3, GL_FLOAT, 0, surface_field);
         for (int i = 0; i < resolution; i++)
-            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
         glEnd();
         glTranslatef(-2, 0, 0);
         glVertexPointer(3, GL_FLOAT, 0, surface_field);
         for (int i = 0; i < resolution; i++)
-            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
         glEnd();
         glTranslatef(-2, 0, 0);
         glVertexPointer(3, GL_FLOAT, 0, surface_field);
         for (int i = 0; i < resolution; i++)
-            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
         glEnd();
         glTranslatef(-2, 0, 0);
         glTranslatef(2, 0, -1);
         glVertexPointer(3, GL_FLOAT, 0, surface_field);
         for (int i = 0; i < resolution; i++)
-            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
         glEnd();
         glTranslatef(-2, 0, 1);
         glTranslatef(2, 0, -3);
         glVertexPointer(3, GL_FLOAT, 0, surface_field);
         for (int i = 0; i < resolution; i++)
-            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
         glEnd();
         glTranslatef(2, 0, -1);
         glVertexPointer(3, GL_FLOAT, 0, surface_field);
         for (int i = 0; i < resolution; i++)
-            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
         glEnd();
         glTranslatef(2, 0, 0);
         glVertexPointer(3, GL_FLOAT, 0, surface_field);
         for (int i = 0; i < resolution; i++)
-            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
         glEnd();
         glTranslatef(-4, 0, 0);
         glVertexPointer(3, GL_FLOAT, 0, surface_field);
         for (int i = 0; i < resolution; i++)
-            glDrawArrays(GL_TRIANGLE_STRIP, i * length2, length2);
+            glDrawArrays(GL_TRIANGLE_STRIP, i * length, length);
         glEnd();
     }
 
@@ -1269,20 +1265,18 @@ void Keyboard(unsigned char c, int x, int y)
         }
         break;
     case '+':
-        grass_height = grass_height + 1;
-        // waves_intensity = waves_intensity + 1;
+        // grass_height = grass_height + 1;
+        waves_intensity = waves_intensity + 1;
         break;
     case '-':
-        // if (waves_intensity > 0)
-        if (grass_height > 0)
+        if (waves_intensity > 0)
+        // if (grass_height > 0)
         {
-            grass_height = grass_height - 1;
-            // waves_intensity = waves_intensity - 1;
+            // grass_height = grass_height - 1;
+            waves_intensity = waves_intensity - 1;
         }
         break;
-    case 'd':
-        waves_direction = !waves_direction;
-        break;
+
     case 'x':
         angleX = angleX + 5;
         break;
