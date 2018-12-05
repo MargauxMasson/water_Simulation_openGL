@@ -3,7 +3,15 @@
 
 This final project has for main purpose to apply all the techniques learned during this term. Therefore, I chose to implement some water/waves simulator using OpenGL. This project involves implementing and manipulating 3D surfaces and normals, openGL functions, mathematical equations, texturing, lighting, and more.
 
-![Waves](./FinalProjectScreenshots/waves.png]
+![water surfaces](./FinalProjectScreenshots/simplewaters.png)
+
+![water surfaces wires](./FinalProjectScreenshots/wires.jpg)
+
+![water surfaces normals and wires](./FinalProjectScreenshots/wiresandnormals.jpg)
+
+![Water cubes](./FinalProjectScreenshots/watercubes.png)
+
+![Water cube under](./FinalProjectScreenshots/cubefromunder.jpg)
 
 
 ## Keyboard commands:
@@ -22,3 +30,8 @@ This final project has for main purpose to apply all the techniques learned duri
 - w or W: Simulate the water without unidirectional waves
 - 0: Display only the water 
 - q or Q: Quit the program
+
+### Grass field - Additional study
+
+![Grass field](./FinalProjectScreenshots/grassfields.png)
+
