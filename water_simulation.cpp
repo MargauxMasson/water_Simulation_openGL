@@ -22,7 +22,7 @@
 
 float angleX = 0;
 float angleY = 0;
-float angleZ = 0;
+float angleZ = 15;
 float waves_intensity = 10;
 bool no_waves = false;
 bool field = false;
@@ -1278,18 +1278,23 @@ void Keyboard(unsigned char c, int x, int y)
         break;
 
     case 'x':
+    case 'X':
         angleX = angleX + 5;
         break;
     case 'y':
+    case 'Y':
         angleY = angleY + 5;
         break;
     case 'z':
+    case 'Z':
         angleZ = angleZ + 5;
         break;
     case 'w':
+    case 'W':
         no_waves = !no_waves;
         break;
     case 'a':
+    case 'A':
         field = !field;
         break;
     case '0':
