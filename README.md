@@ -1,7 +1,12 @@
-# water_Simulation_openGL
+# Water Simulation openGL
+## Introduction to Computer Graphics Final Project
+
+This final project has for main purpose to apply all the techniques learned during this term. Therefore, I chose to implement some water/waves simulator using OpenGL. This project involves implementing and manipulating 3D surfaces and normals, openGL functions, mathematical equations, texturing, lighting, and more.
+
+![Waves](./FinalProjectScreenshots/waves.png]
 
 
-Keyboard commands:
+## Keyboard commands:
 
 - p or P: Orthographic projection
 - o or O: Perspective projection 
