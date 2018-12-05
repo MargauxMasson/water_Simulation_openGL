@@ -161,7 +161,6 @@ float Xrot, Yrot;    // rotation angles in degrees
 bool isTexture = true;
 int idTexture = 0;
 bool Frozen = false;
-float grass_height = 5;
 unsigned char total_texture[4 * 256 * 256];
 unsigned char alpha_texture[256 * 256];
 unsigned char water_texture[3 * 256 * 256];
@@ -176,7 +175,7 @@ unsigned char *Texture = Texture1;
 /////////// WATER ////////////
 static GLuint tex;
 
-static int wire_frame = 0;
+static bool wire_frame = false;
 static int normals = 0;
 
 static float surface[6 * resolution * (resolution + 1)];
@@ -244,7 +243,7 @@ static float field_creation(const float x, const float y)
 {
     // return (10 * Noise(x, y, 0, 0) / 1000) * grass_height;
     // return (10 * Noise(20 * x, 20 * y, 0, 0) / 1000) * grass_height;
-    return (Noise(10 * x, 10 * y, 20, 0) / 8) * grass_height;
+    return (Noise(10 * x, 10 * y, 20, 0) / 8);
 }
 
 /*
@@ -682,12 +681,12 @@ void Display()
 
     glTranslatef(0, 0.2, 0);
 
-    if (wire_frame != 0)
+    if (wire_frame)
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDisable(GL_TEXTURE_2D);
     }
-    else
+    if (!wire_frame)
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_NONE);
         glEnable(GL_TEXTURE_2D);
@@ -1233,13 +1232,9 @@ void Keyboard(unsigned char c, int x, int y)
     case 'F':
         Frozen = !Frozen;
         break;
-    // case 'w':
-    // case 'W':
-    //     wire_frame = 0;
-    //     break;
     case 'l':
     case 'L':
-        wire_frame = 1;
+        wire_frame = !wire_frame;
         break;
     case 'n':
     case 'N':
@@ -1265,14 +1260,11 @@ void Keyboard(unsigned char c, int x, int y)
         }
         break;
     case '+':
-        // grass_height = grass_height + 1;
         waves_intensity = waves_intensity + 1;
         break;
     case '-':
         if (waves_intensity > 0)
-        // if (grass_height > 0)
         {
-            // grass_height = grass_height - 1;
             waves_intensity = waves_intensity - 1;
         }
         break;
